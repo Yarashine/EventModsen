@@ -8,6 +8,7 @@ public class Member
     public DateTime DateOfBirth { get; set; }
     public DateTime DateOfRegistration { get; set; }
     public string Email { get; set; }
+    public List<Event> Events { get; set; }
 
 
 }
