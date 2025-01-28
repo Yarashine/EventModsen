@@ -21,7 +21,6 @@
     <Folder Include="Application\Services\" />
     <Folder Include="Application\Repositories\" />
     <Folder Include="Api\" />
-    <Folder Include="Infrastructure\" />
   </ItemGroup>
 
 </Project>
