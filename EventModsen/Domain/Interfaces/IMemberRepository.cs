@@ -1,5 +1,5 @@
 ﻿namespace EventModsen.Domain.Interfaces;
-using EventModsen.Infrastructure.DB.Models;
+using EventModsen.Domain.Entities;
 
 public interface IMemberRepository
 {

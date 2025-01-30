@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using EventModsen.Infrastructure.DB.Models;
+using EventModsen.Domain.Entities;
 
 namespace EventModsen.Infrastructure.DB;
 

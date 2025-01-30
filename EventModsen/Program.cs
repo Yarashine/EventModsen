@@ -1,5 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using EventModsen.Infrastructure.DB;
+using EventModsen.Domain.Interfaces;
+using EventModsen.Infrastructure.DB.Repositories;
+using EventModsen.Application.Interfaces;
+using EventModsen.Application.Services;
+using EventModsen.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +17,15 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<EventDBContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.Configure<PaginationSettings>(builder.Configuration.GetSection("PaginationSettings"));
+
+builder.Services.AddScoped<IEventService, EventService>();
+builder.Services.AddScoped<IMemberService, MemberService>();
+
+builder.Services.AddScoped<IEventRepository, EventRepository>();
+builder.Services.AddScoped<IMemberRepository, MemberRepository>();
+
 
 var app = builder.Build();
 

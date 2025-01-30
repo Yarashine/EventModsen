@@ -1,6 +1,6 @@
 ﻿namespace EventModsen.Infrastructure.DB.Repositories;
 
-using EventModsen.Infrastructure.DB.Models;
+using EventModsen.Domain.Entities;
 using EventModsen.Domain.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
