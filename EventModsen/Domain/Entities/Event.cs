@@ -25,8 +25,6 @@ public class Event
     [Range(1, 100000)]
     public int? MaxCountMembers { get; set; }
     public ICollection<Member>? Members { get; set; }
-
-    //[MaxLength(100)]
-    //public string ImagePath { get; set; }
+    public ICollection<ImageInfo> Images { get; set; }
 }
 

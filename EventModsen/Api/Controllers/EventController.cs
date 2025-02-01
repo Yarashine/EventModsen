@@ -5,17 +5,17 @@ using EventModsen.Domain.Entities;
 using EventModsen.Application.DTOs;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/events")]
 public class EventController(IEventService _eventService)  : Controller
 {
-    [HttpGet("all")]
+    [HttpGet]
     public async Task<ActionResult<IEnumerable<EventDto>?>> GetAllEvents()
     {
         var events = await _eventService.GetEvents();
         return Ok(events);
     }
 
-    [HttpGet]
+    [HttpGet("filter")]
     public async Task<ActionResult<IEnumerable<EventDto>?>> GetFilteredEvents([FromQuery] int pageNumber, [FromQuery] DateTime? date, [FromQuery] string? location, [FromQuery] string? category)
     {
         var events = await _eventService.GetFilteredEvents(pageNumber, date, location, category);

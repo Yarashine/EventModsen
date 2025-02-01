@@ -11,6 +11,7 @@ public class EventDBContext : DbContext
 
     public DbSet<Member> Members { get; set; }
     public DbSet<Event> Events { get; set; }
+    public DbSet<ImageInfo> ImageInfos { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

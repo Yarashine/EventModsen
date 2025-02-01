@@ -11,29 +11,28 @@ using EventModsen.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Components.Routing;
 
-public class EventService(IEventRepository _eventRepository, IOptions<PaginationSettings> _paginationOptions) : IEventService
+public class EventService : IEventService
 {
+    private readonly IEventRepository _eventRepository;
+    private readonly IImageService _imageService;
+    private readonly int _pageSize;
+    public EventService(IEventRepository eventRepository, IImageService imageService, IOptions<PaginationSettings> paginationOptions)
+    {
+        _eventRepository = eventRepository;
+        _imageService = imageService;
+        _pageSize = paginationOptions.Value.PageSize;
+    }
     public Task AddEvent(EventDto @event)
     {
         var eventEntity = @event.Adapt<Event>();
         return _eventRepository.CreateAsync(eventEntity);
     }
-
-    public Task AddImage()
+    public async Task<bool> DeleteEvent(int id)
     {
-        throw new NotImplementedException();
+        bool isDeleted = await _eventRepository.DeleteAsync(id);
+        await _imageService.RemoveAllEventImages(id);
+        return isDeleted;
     }
-
-    public Task<bool> DeleteEvent(int id)
-    {
-        return _eventRepository.DeleteAsync(id);
-    }
-
-    public Task<bool> DeleteImage()
-    {
-        throw new NotImplementedException();
-    }
-
     public async Task<EventDto?> GetEventById(int id)
     {
         var @event = await _eventRepository.GetByIdAsync(id);
@@ -54,8 +53,7 @@ public class EventService(IEventRepository _eventRepository, IOptions<Pagination
 
     public async Task<IEnumerable<EventDto>> GetFilteredEvents(int pageNumber, DateTime? date = null, string? location = null, string? category = null)
     {
-        var pageSize = _paginationOptions.Value.PageSize;
-        var events = await _eventRepository.GetFilteredAsync(pageNumber, pageSize, date, location, category);
+        var events = await _eventRepository.GetFilteredAsync(pageNumber, _pageSize, date, location, category);
         return events.Adapt<IEnumerable<EventDto>>();
        
     }

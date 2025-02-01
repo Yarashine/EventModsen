@@ -12,6 +12,4 @@ public interface IEventService
     public Task AddEvent(EventDto @event);
     public Task<bool> UpdateEvent(EventDto @event);
     public Task<bool> DeleteEvent(int id);
-    public Task AddImage();
-    public Task<bool> DeleteImage();
 }
