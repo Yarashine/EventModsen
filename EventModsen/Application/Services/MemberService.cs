@@ -14,8 +14,8 @@ public class MemberService(IMemberRepository _memberRepository, IEventRepository
     public async Task AddToEvent(int memberId, int eventId)
     {
         var @event = await _eventRepository.GetByIdAsync(eventId) ?? throw new NotFoundException("Event");
-        var members = await _memberRepository.GetAllByEventIdAsync(eventId) ?? throw new NotFoundException("Event");
-        if (members.Any(m => m.Id == memberId))
+        var members = await _memberRepository.GetAllByEventIdAsync(eventId);
+        if (members is not null && members.Any(m => m.Id == memberId))
             throw new BadRequestException("User already participating in the event");
         var member = await _memberRepository.GetByIdAsync(memberId) ?? throw new NotFoundException("Member");
         await _memberRepository.AddToEventAsync(memberId, eventId);
@@ -24,8 +24,8 @@ public class MemberService(IMemberRepository _memberRepository, IEventRepository
     public async Task DeleteMemberFromEvent(int memberId, int eventId)
     {
         var @event = await _eventRepository.GetByIdAsync(eventId) ?? throw new NotFoundException("Event");
-        var members = await _memberRepository.GetAllByEventIdAsync(eventId) ?? throw new NotFoundException("Event");
-        if (!members.Any(m => m.Id == memberId))
+        var members = await _memberRepository.GetAllByEventIdAsync(eventId);
+        if (members is null || !members.Any(m => m.Id == memberId))
             throw new BadRequestException("User isn't participating in the event");
         await _memberRepository.DeleteFromEventAsync(memberId, eventId);
     }
