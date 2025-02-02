@@ -7,28 +7,39 @@ using EventModsen.Domain.Interfaces;
 using Mapster;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using EventModsen.Domain.Exceptions;
 
-public class MemberService(IMemberRepository _memberRepository) : IMemberService
+public class MemberService(IMemberRepository _memberRepository, IEventRepository _eventRepository) : IMemberService
 {
-    public async Task<bool> AddToEvent(int memberId, int eventId)
+    public async Task AddToEvent(int memberId, int eventId)
     {
-        return await _memberRepository.AddToEventAsync(memberId, eventId);
+        var @event = await _eventRepository.GetByIdAsync(eventId) ?? throw new NotFoundException("Event");
+        var members = await _memberRepository.GetAllByEventIdAsync(eventId) ?? throw new NotFoundException("Event");
+        if (members.Any(m => m.Id == memberId))
+            throw new BadRequestException("User already participating in the event");
+        var member = await _memberRepository.GetByIdAsync(memberId) ?? throw new NotFoundException("Member");
+        await _memberRepository.AddToEventAsync(memberId, eventId);
     }
 
-    public async Task<bool> DeleteMemberFromEvent(int memberId, int eventId)
+    public async Task DeleteMemberFromEvent(int memberId, int eventId)
     {
-        return await _memberRepository.DeleteFromEventAsync(memberId, eventId);
+        var @event = await _eventRepository.GetByIdAsync(eventId) ?? throw new NotFoundException("Event");
+        var members = await _memberRepository.GetAllByEventIdAsync(eventId) ?? throw new NotFoundException("Event");
+        if (!members.Any(m => m.Id == memberId))
+            throw new BadRequestException("User isn't participating in the event");
+        await _memberRepository.DeleteFromEventAsync(memberId, eventId);
     }
 
-    public async Task<IEnumerable<MemberDto>?> GetAllMembersByEvent(int eventId)
+    public async Task<IEnumerable<MemberDto>> GetAllMembersByEvent(int eventId)
     {
-        var member = await _memberRepository.GetAllByEventIdAsync(eventId);
-        return member.Adapt<IEnumerable<MemberDto>?>();
+        var @event = await _eventRepository.GetByIdAsync(eventId) ?? throw new NotFoundException("Event");
+        var members = await _memberRepository.GetAllByEventIdAsync(eventId);
+        return members.Adapt<IEnumerable<MemberDto>>();
     }
 
-    public async Task<MemberDto?> GetMemberById(int id)
+    public async Task<MemberDto> GetMemberById(int memberId)
     {
-        var member = await _memberRepository.GetByIdAsync(id);
+        var member = await _memberRepository.GetByIdAsync(memberId) ?? throw new NotFoundException("Member");
         return member.Adapt<MemberDto>();
     }
 }

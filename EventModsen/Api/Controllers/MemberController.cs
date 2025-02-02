@@ -12,10 +12,8 @@ public class MemberController(IMemberService _memberService) : Controller
     public async Task<IActionResult> AddToEvent(int eventId)
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-        var result = await _memberService.AddToEvent(int.Parse(userId), eventId);
-        if (result)
-            return Ok("Member successfully added to the event.");
-        return BadRequest("Failed to add member to event.");
+        await _memberService.AddToEvent(int.Parse(userId), eventId);
+        return Ok();
     }
 
     [HttpGet("{eventId}")]
@@ -40,9 +38,7 @@ public class MemberController(IMemberService _memberService) : Controller
     public async Task<IActionResult> DeleteMemberFromEvent(int eventId)
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-        var result = await _memberService.DeleteMemberFromEvent(int.Parse(userId), eventId);
-        if (result)
-            return Ok("Member successfully deleted from the event.");
-        return BadRequest("Failed to delete member from event.");
+        await _memberService.DeleteMemberFromEvent(int.Parse(userId), eventId);
+        return Ok();
     }
 }

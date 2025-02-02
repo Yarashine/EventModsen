@@ -13,6 +13,7 @@ using Microsoft.OpenApi.Models;
 using EventModsen.Api.Authorization;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using EventModsen.Api.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -112,6 +113,9 @@ app.UseStaticFiles(new StaticFileOptions
     FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Images")),
     RequestPath = "/Images"
 });
+
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseHttpsRedirection();
 

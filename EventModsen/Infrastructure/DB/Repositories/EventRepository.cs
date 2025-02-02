@@ -12,20 +12,16 @@ public class EventRepository(EventDBContext _eventDBContext) : IEventRepository
 {
     private readonly DbSet<Event> _events = _eventDBContext.Set<Event>();
 
-    public async Task<bool> CreateAsync(Event @event)
+    public async Task CreateAsync(Event @event)
     {
         _events.Add(@event);
-        return await _eventDBContext.SaveChangesAsync() > 0;
+        await _eventDBContext.SaveChangesAsync();
     }
-    public async Task<bool> DeleteAsync(int id)
+    public async Task DeleteAsync(int id)
     {
         var @event = await _events.FirstOrDefaultAsync(e => e.Id == id);
-        if (@event != null)
-        {
-            _events.Remove(@event);
-            return await _eventDBContext.SaveChangesAsync() > 0;
-        }
-        return false;
+        _events.Remove(@event);
+        await _eventDBContext.SaveChangesAsync();
     }
 
     public async Task<IEnumerable<Event>?> GetAllAsync()
@@ -57,9 +53,9 @@ public class EventRepository(EventDBContext _eventDBContext) : IEventRepository
         return await query.ToListAsync();
     }
 
-    public async Task<bool> UpdateAsync(Event entity)
+    public async Task UpdateAsync(Event entity)
     {
         _eventDBContext.Entry(entity).State = EntityState.Modified;
-        return await _eventDBContext.SaveChangesAsync() > 0;
+        await _eventDBContext.SaveChangesAsync();
     }
 }

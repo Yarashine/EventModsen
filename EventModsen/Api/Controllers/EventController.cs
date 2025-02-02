@@ -3,6 +3,7 @@ using EventModsen.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using EventModsen.Domain.Entities;
 using EventModsen.Application.DTOs;
+using EventModsen.Application.DTOs.RequestDto;
 
 [ApiController]
 [Route("api/events")]
@@ -35,7 +36,7 @@ public class EventController(IEventService _eventService)  : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddEvent([FromBody] EventDto @event)
+    public async Task<IActionResult> AddEvent([FromBody] CreateEventDto @event)
     {
         await _eventService.AddEvent(@event);
         return Ok();
@@ -44,14 +45,12 @@ public class EventController(IEventService _eventService)  : Controller
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteEvent([FromRoute] int id)
     {
-        var isDeleted = await _eventService.DeleteEvent(id);
-        if(isDeleted)
-            return Ok();
-        return BadRequest();
+        await _eventService.DeleteEvent(id);
+        return Ok();
     }
 
     [HttpPut]
-    public async Task<IActionResult> PutEvent([FromBody] EventDto @event)
+    public async Task<IActionResult> PutEvent([FromBody] UpdateEventDto @event)
     {
         await _eventService.UpdateEvent(@event);
         return Ok();

@@ -6,10 +6,15 @@ using EventModsen.Domain.Entities;
 using EventModsen.Application.DTOs;
 using Mapster;
 using Microsoft.AspNetCore.Http;
+using EventModsen.Domain.Exceptions;
+using EventModsen.Application.DTOs.RequestDto;
 
 namespace EventModsen.Application.Services
 {
-    public class ImageService(IOptions<ImageSettings> options, IHttpContextAccessor httpContextAccessor, IImageRepository _imageRepository) : IImageService
+    public class ImageService(IEventRepository _eventRepository,
+                                IOptions<ImageSettings> options, 
+                                IHttpContextAccessor httpContextAccessor, 
+                                IImageRepository _imageRepository) : IImageService
     {
         private readonly string _imagePath = options.Value.ImagePath;
         private readonly string _baseUrl = $"{httpContextAccessor.HttpContext.Request.Scheme}://{httpContextAccessor.HttpContext.Request.Host}/Images/";
@@ -17,7 +22,28 @@ namespace EventModsen.Application.Services
         public async Task<string> SaveImageAsync(IFormFile file, int eventId)
         {
             if (file == null || file.Length == 0)
-                throw new ArgumentException("Файл отсутствует или пуст.");
+                throw new ArgumentException("File does not exist or empty");
+
+            var allowedImageTypes = new[] { "image/jpeg", "image/png" };
+            if (!allowedImageTypes.Contains(file.ContentType))
+            {
+                throw new InvalidOperationException("The file must be an image (jpeg, png).");
+            }
+
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
+            var fileExtension = Path.GetExtension(file.FileName)?.ToLower();
+            if (!allowedExtensions.Contains(fileExtension))
+            {
+                throw new InvalidOperationException("The file must have one of the following extensions: .jpg, .jpeg, .png.");
+            }
+
+            const long maxFileSizeInBytes = 5 * 1024 * 1024;
+            if (file.Length > maxFileSizeInBytes)
+            {
+                throw new InvalidOperationException("The file size must not exceed 5MB.");
+            }
+
+            var @event = await _eventRepository.GetByIdAsync(eventId) ?? throw new NotFoundException("Event");
 
             string eventFolderPath = Path.Combine(_imagePath, eventId.ToString());
             await Console.Out.WriteLineAsync(eventFolderPath);
@@ -40,6 +66,7 @@ namespace EventModsen.Application.Services
 
         public async Task<IEnumerable<ImageInfoDto>> GetAllEventImages(int eventId)
         {
+            var @event = await _eventRepository.GetByIdAsync(eventId) ?? throw new NotFoundException("Event");
             var images = await _imageRepository.GetAllImageUrlsFromEvent(eventId);
             //images.Select(i => i.Adapt<ImageInfoDto>());
             return images.Adapt<IEnumerable<ImageInfoDto>>();
@@ -47,6 +74,7 @@ namespace EventModsen.Application.Services
 
         public async Task RemoveAllEventImages(int eventId)
         {
+            var @event = await _eventRepository.GetByIdAsync(eventId) ?? throw new NotFoundException("Event");
             string eventFolderPath = Path.Combine(_imagePath, eventId.ToString());
             if(Directory.Exists(eventFolderPath))
             {

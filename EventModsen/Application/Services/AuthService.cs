@@ -10,6 +10,7 @@ using EventModsen.Domain.Interfaces;
 using EventModsen.Application.DTOs.RequestDto;
 using EventModsen.Application.DTOs.Response;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using EventModsen.Domain.Exceptions;
 
 public class AuthService(IMemberRepository _memberRepository, IJwtService _jwtService)  : IAuthService
 {
@@ -17,7 +18,7 @@ public class AuthService(IMemberRepository _memberRepository, IJwtService _jwtSe
     {
         var checkEmailMember = await _memberRepository.GetByEmailAsync(member.Email);
         if (checkEmailMember is not null)
-            throw new Exception("User with this email already exist");
+            throw new BadRequestException("User with this email already exist");
 
 
         var entity = member.Adapt<Member>();
@@ -42,12 +43,10 @@ public class AuthService(IMemberRepository _memberRepository, IJwtService _jwtSe
     }
     public async Task<AuthResponseDto> Login(LoginDto credentials)
     {
-        var member = await _memberRepository.GetByEmailAsync(credentials.Email);
-        if (member is null)
-            throw new Exception("Invalid credentials");
+        var member = await _memberRepository.GetByEmailAsync(credentials.Email) ?? throw new NotFoundException("Member");
 
         if(!CheckPassword(credentials.Password, member.PasswordHash, member.PasswordSalt))
-            throw new Exception("Invalid credentials");
+            throw new BadRequestException("Invalid credentials");
 
         var age = CalculateAge(member.DateOfBirth);
 
@@ -66,18 +65,12 @@ public class AuthService(IMemberRepository _memberRepository, IJwtService _jwtSe
 
     public async Task<AuthResponseDto> GetNewAccessToken(string oldRefreshToken)
     {
-        var id = _jwtService.GetUserIdFromToken(oldRefreshToken) ?? -1;
+        var id = _jwtService.GetUserIdFromToken(oldRefreshToken) ?? throw new BadRequestException("Invalid refresh token");
 
-        if (id < 0)
-            return null;
-
-        var member = await _memberRepository.GetByIdAsync(id);
-
-        if (member is null)
-            throw new Exception("User with this id doesn't exist");
+        var member = await _memberRepository.GetByIdAsync(id) ?? throw new NotFoundException("Member");
 
         if (member.RefreshToken != oldRefreshToken)
-            throw new Exception("Invalid token");
+            throw new BadRequestException("Invalid refresh token");
 
         var age = CalculateAge(member.DateOfBirth);
 
@@ -95,6 +88,7 @@ public class AuthService(IMemberRepository _memberRepository, IJwtService _jwtSe
 
     public async Task LogOut(int memberId)
     {
+        var member = await _memberRepository.GetByIdAsync(memberId) ?? throw new NotFoundException("Member");
         await _memberRepository.UpdateRefreshAsync(memberId, null);
     }
 
