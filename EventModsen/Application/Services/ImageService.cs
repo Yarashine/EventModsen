@@ -9,19 +9,11 @@ using Microsoft.AspNetCore.Http;
 
 namespace EventModsen.Application.Services
 {
-    public class ImageService : IImageService
+    public class ImageService(IOptions<ImageSettings> options, IHttpContextAccessor httpContextAccessor, IImageRepository _imageRepository) : IImageService
     {
-        private readonly string _imagePath;
-        private readonly IImageRepository _imageRepository;
-        private readonly string _baseUrl;
+        private readonly string _imagePath = options.Value.ImagePath;
+        private readonly string _baseUrl = $"{httpContextAccessor.HttpContext.Request.Scheme}://{httpContextAccessor.HttpContext.Request.Host}/Images/";
 
-        public ImageService(IOptions<ImageSettings> options, IHttpContextAccessor httpContextAccessor, IImageRepository imageRepository)
-        {
-            _imagePath = options.Value.ImagePath;
-            _imageRepository = imageRepository;
-            _baseUrl = $"{httpContextAccessor.HttpContext.Request.Scheme}://{httpContextAccessor.HttpContext.Request.Host}/Images/";
-
-        }
         public async Task<string> SaveImageAsync(IFormFile file, int eventId)
         {
             if (file == null || file.Length == 0)

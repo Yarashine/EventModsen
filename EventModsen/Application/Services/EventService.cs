@@ -11,17 +11,10 @@ using EventModsen.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Components.Routing;
 
-public class EventService : IEventService
+public class EventService(IEventRepository _eventRepository, IImageService _imageService, IOptions<PaginationSettings> paginationOptions) : IEventService
 {
-    private readonly IEventRepository _eventRepository;
-    private readonly IImageService _imageService;
-    private readonly int _pageSize;
-    public EventService(IEventRepository eventRepository, IImageService imageService, IOptions<PaginationSettings> paginationOptions)
-    {
-        _eventRepository = eventRepository;
-        _imageService = imageService;
-        _pageSize = paginationOptions.Value.PageSize;
-    }
+    private readonly int _pageSize = paginationOptions.Value.PageSize;
+
     public Task AddEvent(EventDto @event)
     {
         var eventEntity = @event.Adapt<Event>();

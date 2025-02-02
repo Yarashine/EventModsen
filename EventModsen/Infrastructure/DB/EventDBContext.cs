@@ -18,10 +18,13 @@ public class EventDBContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+
         modelBuilder.Entity<Event>()
             .HasIndex(e => e.Name)
             .IsUnique();
 
-
+        modelBuilder.Entity<Member>()
+            .HasIndex(m => m.Email)
+            .IsUnique();
     }
 }

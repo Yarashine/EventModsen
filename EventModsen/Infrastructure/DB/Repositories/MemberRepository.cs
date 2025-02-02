@@ -12,12 +12,27 @@ using Mapster;
 public class MemberRepository(EventDBContext _eventDBContext) : IMemberRepository
 {
     public readonly DbSet<Member> _members = _eventDBContext.Set<Member>();
+
+    public async Task AddAsync(Member member)
+    {
+        _members.Add(member);
+        await _eventDBContext.SaveChangesAsync();
+    }
+    public async Task UpdateRefreshAsync(int id, string refresh)
+    {
+        var member = await _members.FirstOrDefaultAsync(m => m.Id == id);
+        member.RefreshToken = refresh;
+        await _eventDBContext.SaveChangesAsync();
+    }
     public async Task<bool> AddToEventAsync(int memberId, int eventId)
     {
         var member = await _members.Include(m => m.Events).FirstOrDefaultAsync(m => m.Id == memberId);
         if (member is null)
             return false;
         var @event = member.Events.FirstOrDefault(e => e.Id == eventId);
+        if (@event is not null)
+            return false;
+        @event = _eventDBContext.Events.FirstOrDefault(e => e.Id == eventId);
         if (@event is null)
             return false;
         member.Events.Add(@event);
@@ -48,6 +63,11 @@ public class MemberRepository(EventDBContext _eventDBContext) : IMemberRepositor
     public async Task<Member?> GetByIdAsync(int id)
     {
         return await _members.FirstOrDefaultAsync(m => m.Id == id);
+    }
+
+    public async Task<Member?> GetByEmailAsync(string email)
+    {
+        return await _members.FirstOrDefaultAsync(m => m.Email == email);
     }
 
 }

@@ -24,10 +24,14 @@ public class Member
     public string Email { get; set; }
     public ICollection<Event>? Events { get; set; }
 
-    [MaxLength(255)]
+    [MaxLength(256)]
     public string PasswordHash { get; set; }
 
-    [MaxLength(255)]
+    [MaxLength(256)]
     public string PasswordSalt { get; set; }
+
+    public Role Role { get; set; }
+
+    public string RefreshToken { get; set; }
 }
 
