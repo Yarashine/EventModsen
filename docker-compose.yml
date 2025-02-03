@@ -1,0 +1,31 @@
+version: '3.4'
+
+services:
+  eventmodsen:
+    image: ${DOCKER_REGISTRY-}eventmodsen
+    container_name: eventmodsen
+    build:
+      context: .
+      dockerfile: EventModsen\Dockerfile
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+  eventmodsen.database:
+    image: postgres:latest
+    container_name: eventmodsen.database
+    environment:
+      - POSTGRES_DB=events
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - ./.containers/events-db:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+  eventmodsen.cache:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
+    
+  
+    

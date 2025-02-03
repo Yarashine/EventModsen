@@ -80,7 +80,7 @@ namespace EventModsen.Application.Services
             {
                 Directory.Delete(eventFolderPath, true);
             }
-            await _imageRepository.RemoveAllImagesFromEvent(eventId);
+            //await _imageRepository.RemoveAllImagesFromEvent(eventId);
 
         }
 

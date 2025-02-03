@@ -29,12 +29,12 @@ public class EventRepository(EventDBContext _eventDBContext) : IEventRepository
         return await _events.ToListAsync();
     }
 
-    public async Task<Event?> GetByIdAsync(int id)
+    public async Task<Event> GetByIdAsync(int id)
     {
-        return await _events.FirstOrDefaultAsync(e => e.Id == id);
+        return await _events.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id);
     }
 
-    public async Task<Event?> GetByNameAsync(string name)
+    public async Task<Event> GetByNameAsync(string name)
     {
         return await _events.FirstOrDefaultAsync(e => e.Name == name);
     }

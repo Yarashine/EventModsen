@@ -2,6 +2,7 @@
 using EventModsen.Application.Interfaces;
 using EventModsen.Application.DTOs;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace EventModsen.Api.Controllers;
@@ -10,6 +11,7 @@ namespace EventModsen.Api.Controllers;
 [Route("api/images")]
 public class ImageController(IImageService _imageService) : Controller
 {
+    [Authorize(Roles = "Admin")]
     [HttpGet("{eventId}")]
     public async Task<ActionResult<IEnumerable<ImageInfoDto>>> GetAllByEventImages([FromRoute]int eventId)
     {
@@ -17,6 +19,7 @@ public class ImageController(IImageService _imageService) : Controller
         return Ok(images);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPost("{eventId}")]
     public async Task<IActionResult> AddImage([FromRoute]int eventId, IFormFile image)
     {

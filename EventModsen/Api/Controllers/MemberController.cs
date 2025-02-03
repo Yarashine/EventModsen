@@ -1,4 +1,6 @@
 ﻿using EventModsen.Application.Interfaces;
+using EventModsen.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -8,6 +10,7 @@ namespace EventModsen.Api.Controllers;
 [Route("api/members")]
 public class MemberController(IMemberService _memberService) : Controller
 {
+    [Authorize(Policy = "AgePolicy")]
     [HttpPost("add-to-event/{eventId}")]
     public async Task<IActionResult> AddToEvent(int eventId)
     {
@@ -34,6 +37,8 @@ public class MemberController(IMemberService _memberService) : Controller
         return Ok(member);
     }
 
+    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = "AgePolicy")]
     [HttpDelete("delete-from-event/{eventId}")]
     public async Task<IActionResult> DeleteMemberFromEvent(int eventId)
     {

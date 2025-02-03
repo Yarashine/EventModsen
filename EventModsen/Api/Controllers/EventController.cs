@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using EventModsen.Domain.Entities;
 using EventModsen.Application.DTOs;
 using EventModsen.Application.DTOs.RequestDto;
+using Microsoft.AspNetCore.Authorization;
 
 [ApiController]
 [Route("api/events")]
@@ -35,6 +36,7 @@ public class EventController(IEventService _eventService)  : Controller
         return await _eventService.GetEventByName(name);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> AddEvent([FromBody] CreateEventDto @event)
     {
@@ -42,6 +44,7 @@ public class EventController(IEventService _eventService)  : Controller
         return Ok();
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteEvent([FromRoute] int id)
     {
@@ -49,6 +52,7 @@ public class EventController(IEventService _eventService)  : Controller
         return Ok();
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPut]
     public async Task<IActionResult> PutEvent([FromBody] UpdateEventDto @event)
     {

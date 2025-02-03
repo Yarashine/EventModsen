@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using EventModsen.Domain.Entities;
+using EventModsen.Infrastructure.DB.Configurations;
 
 namespace EventModsen.Infrastructure.DB;
 
@@ -19,12 +20,11 @@ public class EventDBContext : DbContext
         base.OnModelCreating(modelBuilder);
 
 
-        modelBuilder.Entity<Event>()
-            .HasIndex(e => e.Name)
-            .IsUnique();
+        modelBuilder.ApplyConfiguration(new EventConfiguration());
+        modelBuilder.ApplyConfiguration(new MemberConfiguration());
+        modelBuilder.ApplyConfiguration(new ImageInfoConfiguration());
 
-        modelBuilder.Entity<Member>()
-            .HasIndex(m => m.Email)
-            .IsUnique();
+
+
     }
 }

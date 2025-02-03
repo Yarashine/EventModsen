@@ -22,11 +22,13 @@ public class AuthService(IMemberRepository _memberRepository, IJwtService _jwtSe
 
 
         var entity = member.Adapt<Member>();
-        await _memberRepository.AddAsync(entity);
 
         CreatePasswordHashAndSalt(member.Password, out var passwordHash, out var passwordSalt);
         entity.PasswordHash = passwordHash;
         entity.PasswordSalt = passwordSalt;
+
+
+        await _memberRepository.AddAsync(entity);
 
         var age = CalculateAge(member.DateOfBirth);
 
@@ -90,6 +92,13 @@ public class AuthService(IMemberRepository _memberRepository, IJwtService _jwtSe
     {
         var member = await _memberRepository.GetByIdAsync(memberId) ?? throw new NotFoundException("Member");
         await _memberRepository.UpdateRefreshAsync(memberId, null);
+    }
+
+
+    public async Task ChangeMemberRole(int memberId, Role role)
+    {
+        var member = await _memberRepository.GetByIdAsync(memberId) ?? throw new NotFoundException("Member");
+        await _memberRepository.ChangeRole(memberId, role);
     }
 
     private int CalculateAge(DateTime dateOfBirth)

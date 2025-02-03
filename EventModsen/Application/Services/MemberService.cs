@@ -42,4 +42,6 @@ public class MemberService(IMemberRepository _memberRepository, IEventRepository
         var member = await _memberRepository.GetByIdAsync(memberId) ?? throw new NotFoundException("Member");
         return member.Adapt<MemberDto>();
     }
+
+
 }

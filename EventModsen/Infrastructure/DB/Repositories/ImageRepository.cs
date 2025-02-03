@@ -11,18 +11,18 @@ public class ImageRepository(EventDBContext _eventDBContext) : IImageRepository
     public DbSet<ImageInfo> imageInfos = _eventDBContext.ImageInfos;
     public async Task AddImageUrlToEvent(int eventId, string imageUrl)
     {
-        await imageInfos.AddAsync(new ImageInfo() { ImageUrl = imageUrl, eventId = eventId });
+        await imageInfos.AddAsync(new ImageInfo() { ImageUrl = imageUrl, EventId = eventId });
         await _eventDBContext.SaveChangesAsync();
     }
 
     public async Task<IEnumerable<ImageInfo>> GetAllImageUrlsFromEvent(int eventId)
     {
-        return await imageInfos.Where(i => i.eventId == eventId).ToListAsync();
+        return await imageInfos.Where(i => i.EventId == eventId).ToListAsync();
     }
 
     public async Task RemoveAllImagesFromEvent(int eventId)
     {
-        var images = imageInfos.Where(i => i.eventId == eventId);
+        var images = imageInfos.Where(i => i.EventId == eventId);
         imageInfos.RemoveRange(images);
         await _eventDBContext.SaveChangesAsync();
     }

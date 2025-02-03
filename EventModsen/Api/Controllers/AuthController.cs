@@ -4,6 +4,7 @@ using EventModsen.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using EventModsen.Domain.Entities;
 
 namespace EventModsen.Api.Controllers;
 
@@ -37,13 +38,24 @@ public class AuthController(IAuthService _authService) : Controller
             return Unauthorized("Invalid refresh token.");
         return Ok(response);
     }
-    [Authorize(Policy = "UserPolicy")]
+
+    [Authorize]
     [HttpPost("logout")]
     public async Task<IActionResult> LogOut()
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
         await _authService.LogOut(int.Parse(userId));
         return Ok("Logged out successfully.");
+    }
+
+    //[Authorize(Roles = "Admin")]
+    [Authorize]
+    [HttpPut("current/role/admin")]
+    public async Task<IActionResult> ChangeMembersRoleToAdmin()
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+        await _authService.ChangeMemberRole(int.Parse(userId), Role.Admin);
+        return Ok();
     }
 }
 

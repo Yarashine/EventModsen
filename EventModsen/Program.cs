@@ -14,6 +14,10 @@ using EventModsen.Api.Authorization;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using EventModsen.Api.Middlewares;
+using EventModsen.Infrastructure;
+using FluentValidation.AspNetCore;
+using EventModsen.Api.Validators;
+using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,7 +29,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<EventDBContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("Database")));
 
 
 
@@ -45,17 +49,25 @@ builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<IMemberRepository, MemberRepository>();
 builder.Services.AddScoped<IImageRepository, ImageRepository>();
 
+builder.Services.AddControllers().AddFluentValidation(fv =>
+    fv.RegisterValidatorsFromAssemblyContaining<RegisterDtoValidator>());
+builder.Services.AddControllers().AddFluentValidation(fv =>
+    fv.RegisterValidatorsFromAssemblyContaining<CreateEventDtoValidator>());
+builder.Services.AddControllers().AddFluentValidation(fv =>
+    fv.RegisterValidatorsFromAssemblyContaining<UpdateEventDtoValidator>());
+//builder.Services.AddControllers().AddFluentValidation(fv =>
+//    fv.RegisterValidatorsFromAssemblyContaining<LoginDtoValidator>());
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("UserPolicy", policy =>
-        policy.Requirements.Add(new UserRequirement(18, "User")));
+    options.AddPolicy("AgePolicy", policy =>
+        policy.Requirements.Add(new AgeRequirement(18, "User")));
 });
 
 
 builder.Services.AddSingleton<IAuthorizationPolicyProvider, DefaultAuthorizationPolicyProvider>();
 
-builder.Services.AddSingleton<IAuthorizationHandler, UserHandler>();
+builder.Services.AddSingleton<IAuthorizationHandler, AgeHandler>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -104,8 +116,10 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    app.ApplyMigration();   
     app.UseSwagger();
     app.UseSwaggerUI();
+
 }
 
 app.UseStaticFiles(new StaticFileOptions

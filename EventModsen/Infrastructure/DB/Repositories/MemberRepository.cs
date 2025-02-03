@@ -56,4 +56,11 @@ public class MemberRepository(EventDBContext _eventDBContext) : IMemberRepositor
         return await _members.FirstOrDefaultAsync(m => m.Email == email);
     }
 
+    public async Task ChangeRole(int memberId, Role role) 
+    { 
+        var member = await _members.FirstOrDefaultAsync(m => m.Id == memberId);
+        member.Role = role;
+        _eventDBContext.Entry(member).State = EntityState.Modified;
+        await _eventDBContext.SaveChangesAsync();
+    }
 }

@@ -22,15 +22,15 @@ public class EventService(IEventRepository _eventRepository, IImageService _imag
     {
         var eventWithName = await _eventRepository.GetByNameAsync(@event.Name);
         if (eventWithName is not null)
-            throw new BadRequestException("User with this name already exist");
+            throw new BadRequestException("Event with this name already exist");
         var eventEntity = @event.Adapt<Event>();
         await _eventRepository.CreateAsync(eventEntity);
     }
     public async Task DeleteEvent(int id)
     {
         var @event = await _eventRepository.GetByIdAsync(id) ?? throw new NotFoundException("Event");
-        await _eventRepository.DeleteAsync(id);
         await _imageService.RemoveAllEventImages(id);
+        await _eventRepository.DeleteAsync(id);
     }
     public async Task<EventDto> GetEventById(int id)
     {
@@ -58,12 +58,12 @@ public class EventService(IEventRepository _eventRepository, IImageService _imag
 
     public async Task UpdateEvent(UpdateEventDto @event)
     {
-        var entity = await _eventRepository.GetByIdAsync(@event.Id) ?? throw new NotFoundException("Event");
-        if (entity.Name != @event.Name)
+        var eventForCheckingName = await _eventRepository.GetByIdAsync(@event.Id) ?? throw new NotFoundException("Event");
+        if (eventForCheckingName.Name != @event.Name)
         {
             var eventWithName = await _eventRepository.GetByNameAsync(@event.Name);
             if (eventWithName is not null)
-                throw new BadRequestException("User with this name already exist");
+                throw new BadRequestException("Event with this name already exist");
         }
         var eventEntity = @event.Adapt<Event>();
         await _eventRepository.UpdateAsync(eventEntity);

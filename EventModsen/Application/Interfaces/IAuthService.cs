@@ -1,5 +1,6 @@
 ﻿using EventModsen.Application.DTOs.RequestDto;
 using EventModsen.Application.DTOs.Response;
+using EventModsen.Domain.Entities;
 
 namespace EventModsen.Application.Interfaces;
 
@@ -9,4 +10,5 @@ public interface IAuthService
     public Task<AuthResponseDto> Login(LoginDto credentials);
     public Task<AuthResponseDto> GetNewAccessToken(string oldRefreshToken);
     public Task LogOut(int memberId);
+    public Task ChangeMemberRole(int memberId, Role role);
 }

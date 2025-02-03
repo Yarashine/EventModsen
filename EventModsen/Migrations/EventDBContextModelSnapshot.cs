@@ -49,7 +49,7 @@ namespace EventModsen.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<DateTime?>("DateTimeEvent")
+                    b.Property<DateTime>("DateTimeEvent")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
@@ -60,10 +60,11 @@ namespace EventModsen.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<int?>("MaxCountMembers")
+                    b.Property<int>("MaxCountMembers")
                         .HasColumnType("integer");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
@@ -83,16 +84,17 @@ namespace EventModsen.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("EventId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("ImageUrl")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<int>("eventId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("eventId");
+                    b.HasIndex("EventId");
 
                     b.ToTable("ImageInfos");
                 });
@@ -112,6 +114,7 @@ namespace EventModsen.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
@@ -124,18 +127,21 @@ namespace EventModsen.Migrations
                         .HasColumnType("character varying(50)");
 
                     b.Property<string>("PasswordHash")
+                        .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
                     b.Property<string>("PasswordSalt")
+                        .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
                     b.Property<string>("RefreshToken")
                         .HasColumnType("text");
 
-                    b.Property<int>("Role")
-                        .HasColumnType("integer");
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -162,13 +168,13 @@ namespace EventModsen.Migrations
 
             modelBuilder.Entity("EventModsen.Domain.Entities.ImageInfo", b =>
                 {
-                    b.HasOne("EventModsen.Domain.Entities.Event", "event")
+                    b.HasOne("EventModsen.Domain.Entities.Event", "Event")
                         .WithMany("Images")
-                        .HasForeignKey("eventId")
+                        .HasForeignKey("EventId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("event");
+                    b.Navigation("Event");
                 });
 
             modelBuilder.Entity("EventModsen.Domain.Entities.Event", b =>

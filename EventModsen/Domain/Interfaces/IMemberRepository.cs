@@ -10,5 +10,6 @@ public interface IMemberRepository
     public Task DeleteFromEventAsync(int memberId, int eventId);
     public Task AddAsync (Member member);
     public Task UpdateRefreshAsync(int id, string newRefresh);
+    public Task ChangeRole(int memberId, Role role);
 }
 
