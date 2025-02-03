@@ -18,6 +18,7 @@ using EventModsen.Infrastructure;
 using FluentValidation.AspNetCore;
 using EventModsen.Api.Validators;
 using FluentValidation;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +31,12 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<EventDBContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Database")));
+
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration.GetConnectionString("Cache");
+    options.InstanceName = "EventModsen_";
+});
 
 
 

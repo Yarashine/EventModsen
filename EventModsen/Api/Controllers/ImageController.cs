@@ -11,7 +11,6 @@ namespace EventModsen.Api.Controllers;
 [Route("api/images")]
 public class ImageController(IImageService _imageService) : Controller
 {
-    [Authorize(Roles = "Admin")]
     [HttpGet("{eventId}")]
     public async Task<ActionResult<IEnumerable<ImageInfoDto>>> GetAllByEventImages([FromRoute]int eventId)
     {

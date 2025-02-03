@@ -8,13 +8,18 @@ using Mapster;
 using Microsoft.AspNetCore.Http;
 using EventModsen.Domain.Exceptions;
 using EventModsen.Application.DTOs.RequestDto;
+using Microsoft.Extensions.Caching.StackExchangeRedis;
+using Microsoft.Extensions.Caching.Distributed;
+using System.Text.Json;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace EventModsen.Application.Services
 {
     public class ImageService(IEventRepository _eventRepository,
                                 IOptions<ImageSettings> options, 
                                 IHttpContextAccessor httpContextAccessor, 
-                                IImageRepository _imageRepository) : IImageService
+                                IImageRepository _imageRepository,
+                                IDistributedCache _cache) : IImageService
     {
         private readonly string _imagePath = options.Value.ImagePath;
         private readonly string _baseUrl = $"{httpContextAccessor.HttpContext.Request.Scheme}://{httpContextAccessor.HttpContext.Request.Host}/Images/";
@@ -61,15 +66,46 @@ namespace EventModsen.Application.Services
 
             await _imageRepository.AddImageUrlToEvent(eventId, imageUrl);
 
+            var cachedImagesJson = await _cache.GetStringAsync($"image-{eventId}");
+            var cachedImages = new List<ImageInfoDto>();
+
+            if (!string.IsNullOrEmpty(cachedImagesJson))
+            {
+                cachedImages = JsonSerializer.Deserialize<List<ImageInfoDto>>(cachedImagesJson);
+            }
+            else
+            {
+                var images = await _imageRepository.GetAllImageUrlsFromEvent(eventId);
+                cachedImages = images.ToList().Adapt<List<ImageInfoDto>>();
+            }
+
+            var updatedImages = cachedImages.Append(new ImageInfoDto() { ImageUrl = imageUrl });
+            var serializedImages = JsonSerializer.Serialize(updatedImages);
+
+            await _cache.SetStringAsync($"image-{eventId}", serializedImages);
+
             return filePath;
         }
 
         public async Task<IEnumerable<ImageInfoDto>> GetAllEventImages(int eventId)
         {
             var @event = await _eventRepository.GetByIdAsync(eventId) ?? throw new NotFoundException("Event");
+
+            var cachedImagesJson = await _cache.GetStringAsync($"image-{eventId}");
+            if(!string.IsNullOrEmpty(cachedImagesJson))
+            {
+                var cachedImages = JsonSerializer.Deserialize<List<ImageInfoDto>>(cachedImagesJson);
+                return cachedImages;
+            }
+
             var images = await _imageRepository.GetAllImageUrlsFromEvent(eventId);
             //images.Select(i => i.Adapt<ImageInfoDto>());
-            return images.Adapt<IEnumerable<ImageInfoDto>>();
+            var imageDtos = images.Adapt<IEnumerable<ImageInfoDto>>();
+
+            var serializedImages = JsonSerializer.Serialize(imageDtos);
+            await _cache.SetStringAsync($"image-{eventId}", serializedImages);
+
+            return imageDtos;
         }
 
         public async Task RemoveAllEventImages(int eventId)
@@ -80,6 +116,9 @@ namespace EventModsen.Application.Services
             {
                 Directory.Delete(eventFolderPath, true);
             }
+
+            await _cache.RemoveAsync($"image-{eventId}");
+
             //await _imageRepository.RemoveAllImagesFromEvent(eventId);
 
         }
