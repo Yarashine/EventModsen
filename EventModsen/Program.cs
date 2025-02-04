@@ -30,7 +30,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<EventDBContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("Database")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DataBase")));
 
 builder.Services.AddStackExchangeRedisCache(options =>
 {
@@ -64,8 +64,8 @@ builder.Services.AddControllers().AddFluentValidation(fv =>
     fv.RegisterValidatorsFromAssemblyContaining<CreateEventDtoValidator>());
 builder.Services.AddControllers().AddFluentValidation(fv =>
     fv.RegisterValidatorsFromAssemblyContaining<UpdateEventDtoValidator>());
-//builder.Services.AddControllers().AddFluentValidation(fv =>
-//    fv.RegisterValidatorsFromAssemblyContaining<LoginDtoValidator>());
+builder.Services.AddControllers().AddFluentValidation(fv =>
+    fv.RegisterValidatorsFromAssemblyContaining<LoginDtoValidator>());
 
 builder.Services.AddAuthorization(options =>
 {
