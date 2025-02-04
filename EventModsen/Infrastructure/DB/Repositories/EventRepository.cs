@@ -24,7 +24,7 @@ public class EventRepository(EventDBContext _eventDBContext) : IEventRepository
         await _eventDBContext.SaveChangesAsync();
     }
 
-    public async Task<IEnumerable<Event>?> GetAllAsync()
+    public async Task<IEnumerable<Event>> GetAllAsync()
     {
         return await _events.ToListAsync();
     }
@@ -36,7 +36,7 @@ public class EventRepository(EventDBContext _eventDBContext) : IEventRepository
 
     public async Task<Event> GetByNameAsync(string name)
     {
-        return await _events.FirstOrDefaultAsync(e => e.Name == name);
+        return await _events.AsNoTracking().FirstOrDefaultAsync(e => e.Name == name);
     }
 
     public async Task<IEnumerable<Event>> GetFilteredAsync(int pageNumber, int pageSize, DateTime? date = null, string location = null, string category = null)

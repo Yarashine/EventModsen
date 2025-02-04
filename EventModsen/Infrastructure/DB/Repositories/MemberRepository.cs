@@ -42,7 +42,7 @@ public class MemberRepository(EventDBContext _eventDBContext) : IMemberRepositor
 
     public async Task<IEnumerable<Member>> GetAllByEventIdAsync(int eventId)
     {
-        Event @event = await _eventDBContext.Events.Include(e => e.Members).FirstOrDefaultAsync(e => e.Id == eventId);
+        Event @event = await _eventDBContext.Events.AsNoTracking().Include(e => e.Members).FirstOrDefaultAsync(e => e.Id == eventId);
         return @event?.Members;
     }
 

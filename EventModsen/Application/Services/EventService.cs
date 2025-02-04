@@ -14,7 +14,11 @@ using Microsoft.AspNetCore.Components.Routing;
 using EventModsen.Domain.Exceptions;
 using System.Xml.Linq;
 
-public class EventService(IEventRepository _eventRepository, IImageService _imageService, IOptions<PaginationSettings> paginationOptions) : IEventService
+public class EventService(IEventRepository _eventRepository, 
+                            IImageService _imageService, 
+                            INotificationService _notificationService,
+                            IMemberService _memberService,
+                            IOptions<PaginationSettings> paginationOptions) : IEventService
 {
     private readonly int _pageSize = paginationOptions.Value.PageSize;
 
@@ -65,6 +69,24 @@ public class EventService(IEventRepository _eventRepository, IImageService _imag
             if (eventWithName is not null)
                 throw new BadRequestException("Event with this name already exist");
         }
+
+        if (eventForCheckingName.Location != @event.Location)
+        {
+            var eventMembers = await _memberService.GetAllMembersByEvent(@event.Id);
+            foreach(var member in eventMembers)
+            {
+                await _notificationService.AddNotification($"The location has changed to {@event.Location}", member.Id);
+            }
+        }
+        else if (eventForCheckingName.DateTimeEvent != @event.DateTimeEvent)
+        {
+            var eventMembers = await _memberService.GetAllMembersByEvent(@event.Id);
+            foreach (var member in eventMembers)
+            {
+                await _notificationService.AddNotification($"The date and time has changed to {@event.DateTimeEvent}", member.Id);
+            }
+        }
+
         var eventEntity = @event.Adapt<Event>();
         await _eventRepository.UpdateAsync(eventEntity);
     }

@@ -18,6 +18,8 @@ public class MemberService(IMemberRepository _memberRepository, IEventRepository
         if (members is not null && members.Any(m => m.Id == memberId))
             throw new BadRequestException("User already participating in the event");
         var member = await _memberRepository.GetByIdAsync(memberId) ?? throw new NotFoundException("Member");
+        if (@event.MaxCountMembers <= members.Count())
+            throw new BadRequestException("Event is full");
         await _memberRepository.AddToEventAsync(memberId, eventId);
     }
 

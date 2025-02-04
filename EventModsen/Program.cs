@@ -51,10 +51,12 @@ builder.Services.AddScoped<IMemberService, MemberService>();
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<IMemberRepository, MemberRepository>();
 builder.Services.AddScoped<IImageRepository, ImageRepository>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 
 builder.Services.AddControllers().AddFluentValidation(fv =>
     fv.RegisterValidatorsFromAssemblyContaining<RegisterDtoValidator>());

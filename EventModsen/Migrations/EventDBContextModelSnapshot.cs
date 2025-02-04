@@ -151,6 +151,35 @@ namespace EventModsen.Migrations
                     b.ToTable("Members");
                 });
 
+            modelBuilder.Entity("EventModsen.Domain.Entities.Notification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("MemberId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MemberId");
+
+                    b.ToTable("Notifications");
+                });
+
             modelBuilder.Entity("EventMember", b =>
                 {
                     b.HasOne("EventModsen.Domain.Entities.Event", null)
@@ -177,9 +206,25 @@ namespace EventModsen.Migrations
                     b.Navigation("Event");
                 });
 
+            modelBuilder.Entity("EventModsen.Domain.Entities.Notification", b =>
+                {
+                    b.HasOne("EventModsen.Domain.Entities.Member", "Member")
+                        .WithMany("Notifications")
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Member");
+                });
+
             modelBuilder.Entity("EventModsen.Domain.Entities.Event", b =>
                 {
                     b.Navigation("Images");
+                });
+
+            modelBuilder.Entity("EventModsen.Domain.Entities.Member", b =>
+                {
+                    b.Navigation("Notifications");
                 });
 #pragma warning restore 612, 618
         }

@@ -23,8 +23,6 @@ public class MemberController(IMemberService _memberService) : Controller
     public async Task<IActionResult> GetAllMembersByEvent(int eventId)
     {
         var members = await _memberService.GetAllMembersByEvent(eventId);
-        if (members == null || members.Count() == 0)
-            return NotFound("No members found for this event.");
         return Ok(members);
     }
 
@@ -32,8 +30,6 @@ public class MemberController(IMemberService _memberService) : Controller
     public async Task<IActionResult> GetMemberById(int memberId)
     {
         var member = await _memberService.GetMemberById(memberId);
-        if (member == null)
-            return NotFound("Member not found.");
         return Ok(member);
     }
 

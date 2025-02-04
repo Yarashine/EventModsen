@@ -13,6 +13,7 @@ public class EventDBContext : DbContext
     public DbSet<Member> Members { get; set; }
     public DbSet<Event> Events { get; set; }
     public DbSet<ImageInfo> ImageInfos { get; set; }
+    public DbSet<Notification> Notifications { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -23,6 +24,7 @@ public class EventDBContext : DbContext
         modelBuilder.ApplyConfiguration(new EventConfiguration());
         modelBuilder.ApplyConfiguration(new MemberConfiguration());
         modelBuilder.ApplyConfiguration(new ImageInfoConfiguration());
+        modelBuilder.ApplyConfiguration(new NotificationConfiguration());
 
 
 

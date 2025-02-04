@@ -16,8 +16,6 @@ public class AuthController(IAuthService _authService) : Controller
     public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
     {
         var response = await _authService.Register(registerDto);
-        if (response == null)
-            return BadRequest("Registration failed.");
         return Ok(response);
     }
 
@@ -25,8 +23,6 @@ public class AuthController(IAuthService _authService) : Controller
     public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
     {
         var response = await _authService.Login(loginDto);
-        if (response == null)
-            return Unauthorized("Invalid credentials.");
         return Ok(response);
     }
 
@@ -34,8 +30,6 @@ public class AuthController(IAuthService _authService) : Controller
     public async Task<IActionResult> GetNewAccessToken([FromQuery] string oldRefreshToken)
     {
         var response = await _authService.GetNewAccessToken(oldRefreshToken);
-        if (response == null)
-            return Unauthorized("Invalid refresh token.");
         return Ok(response);
     }
 

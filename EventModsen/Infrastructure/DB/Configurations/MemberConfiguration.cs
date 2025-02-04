@@ -46,5 +46,9 @@ public class MemberConfiguration : IEntityTypeConfiguration<Member>
 
         builder.HasMany(m => m.Events)
             .WithMany(e => e.Members);
+
+        builder.HasMany(m => m.Notifications)
+            .WithOne(n => n.Member)
+            .HasForeignKey(n => n.MemberId);
     }
 }

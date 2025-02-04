@@ -22,7 +22,7 @@ public class ImageRepository(EventDBContext _eventDBContext) : IImageRepository
 
     public async Task RemoveAllImagesFromEvent(int eventId)
     {
-        var images = imageInfos.Where(i => i.EventId == eventId);
+        var images = await imageInfos.Where(i => i.EventId == eventId).ToListAsync();
         imageInfos.RemoveRange(images);
         await _eventDBContext.SaveChangesAsync();
     }
