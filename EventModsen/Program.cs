@@ -131,9 +131,13 @@ if (app.Environment.IsDevelopment())
 
 }
 
+var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Images");
+if(!Directory.Exists(imagePath))
+    Directory.CreateDirectory(imagePath);
+
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Images")),
+    FileProvider = new PhysicalFileProvider(imagePath),
     RequestPath = "/Images"
 });
 

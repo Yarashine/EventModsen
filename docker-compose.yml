@@ -10,6 +10,9 @@ services:
     ports:
       - "8080:8080"
       - "8081:8081"
+    depends_on:
+      - eventmodsen.database
+      - eventmodsen.cache
   eventmodsen.database:
     image: postgres:latest
     container_name: eventmodsen.database
