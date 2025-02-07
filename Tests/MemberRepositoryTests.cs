@@ -28,8 +28,10 @@ public class MemberRepositoryTests
     public async Task GetByIdAsync_ReturnsCorrectMember()
     {
         var dbContext = await GetDBContext();
-        var repository = new MemberRepository(dbContext);
-        var member = new Member { Id = 1, Email = "test@example.com", RefreshToken = "refresh123" };
+        var repository = new MemberRepository(dbContext); 
+        var hash = "mqbk/Gsys55VXkiFcRx5nC5RSsXo1jFXNxAe4Gx7CCmqwmJFqNgTpwNTtLqPOTzhUBjHhsXnwZt2YjYPF/0LCA==";
+        var salt = "EE7fa2AaSrMpAbbu5W/ysXeQWN/UvaKXdqbZm8s1mqCZ7lhd9I91FeQL9EaVZWVf2X593M9BGUVuW0tZlZ/h1erZMjzxebKTRcPnkH75IsPcDG1LUAhZa3XCIOZEmYLRLMP5CwD/zjnqKqCcsQiwCONVEI1B7v5wZRgVlhCGftw=";
+        var member = new Member { Id = 1, Email = "test@example.com", RefreshToken = "refresh123", PasswordHash = hash, PasswordSalt = salt };
         await dbContext.Members.AddAsync(member);
         await dbContext.SaveChangesAsync();
 
@@ -47,7 +49,9 @@ public class MemberRepositoryTests
     {
         var dbContext = await GetDBContext();
         var repository = new MemberRepository(dbContext);
-        var member = new Member { Id = 1, Email = "test@example.com", RefreshToken = "refresh123" };
+        var hash = "mqbk/Gsys55VXkiFcRx5nC5RSsXo1jFXNxAe4Gx7CCmqwmJFqNgTpwNTtLqPOTzhUBjHhsXnwZt2YjYPF/0LCA==";
+        var salt = "EE7fa2AaSrMpAbbu5W/ysXeQWN/UvaKXdqbZm8s1mqCZ7lhd9I91FeQL9EaVZWVf2X593M9BGUVuW0tZlZ/h1erZMjzxebKTRcPnkH75IsPcDG1LUAhZa3XCIOZEmYLRLMP5CwD/zjnqKqCcsQiwCONVEI1B7v5wZRgVlhCGftw=";
+        var member = new Member { Id = 1, Email = "test@example.com", RefreshToken = "refresh123" , PasswordHash = hash, PasswordSalt = salt};
 
 
         await repository.AddAsync(member);

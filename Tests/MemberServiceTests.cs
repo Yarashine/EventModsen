@@ -37,8 +37,8 @@ public class MemberServiceTests
             new() { Id = 2, Name = "Member 2" }
         };
 
-        _mockEventRepository.Setup(r => r.GetByIdAsync(eventId)).ReturnsAsync(mockEvent);
-        _mockMemberRepository.Setup(r => r.GetAllByEventIdAsync(eventId)).ReturnsAsync(members);
+        _mockEventRepository.Setup(r => r.GetByIdAsync(eventId, CancellationToken.None)).ReturnsAsync(mockEvent);
+        _mockMemberRepository.Setup(r => r.GetAllByEventIdAsync(eventId, CancellationToken.None)).ReturnsAsync(members);
 
 
         var result = await _memberService.GetAllMembersByEvent(eventId);
@@ -54,7 +54,7 @@ public class MemberServiceTests
     {
         var eventId = 1;
 
-        _mockEventRepository.Setup(r => r.GetByIdAsync(eventId)).ReturnsAsync((Event)null);
+        _mockEventRepository.Setup(r => r.GetByIdAsync(eventId, CancellationToken.None)).ReturnsAsync((Event)null);
 
         await Assert.ThrowsAsync<NotFoundException>(() => _memberService.GetAllMembersByEvent(eventId));
     }
@@ -65,7 +65,7 @@ public class MemberServiceTests
         var memberId = 1;
         var mockMember = new Member { Id = memberId, Name = "Member 1" };
 
-        _mockMemberRepository.Setup(r => r.GetByIdAsync(memberId)).ReturnsAsync(mockMember);
+        _mockMemberRepository.Setup(r => r.GetByIdAsync(memberId, CancellationToken.None)).ReturnsAsync(mockMember);
 
 
         var result = await _memberService.GetMemberById(memberId);
@@ -80,7 +80,7 @@ public class MemberServiceTests
     {
         var memberId = 1;
 
-        _mockMemberRepository.Setup(r => r.GetByIdAsync(memberId)).ReturnsAsync((Member)null);
+        _mockMemberRepository.Setup(r => r.GetByIdAsync(memberId, CancellationToken.None)).ReturnsAsync((Member)null);
 
         await Assert.ThrowsAsync<NotFoundException>(() => _memberService.GetMemberById(memberId));
     }
@@ -90,19 +90,19 @@ public class MemberServiceTests
     {
         var eventId = 1;
         var memberId = 2;
-        var mockEvent = new Event { Id = eventId };
+        var mockEvent = new Event { Id = eventId, MaxCountMembers = 5 };
         var members = new List<Member>();
         var member = new Member { Id = memberId };
 
-        _mockEventRepository.Setup(r => r.GetByIdAsync(eventId)).ReturnsAsync(mockEvent);
-        _mockMemberRepository.Setup(r => r.GetAllByEventIdAsync(eventId)).ReturnsAsync(members);
-        _mockMemberRepository.Setup(r => r.GetByIdAsync(memberId)).ReturnsAsync(member);
-        _mockMemberRepository.Setup(r => r.AddToEventAsync(memberId, eventId)).Returns(Task.CompletedTask);
+        _mockEventRepository.Setup(r => r.GetByIdAsync(eventId, CancellationToken.None)).ReturnsAsync(mockEvent);
+        _mockMemberRepository.Setup(r => r.GetAllByEventIdAsync(eventId, CancellationToken.None)).ReturnsAsync(members);
+        _mockMemberRepository.Setup(r => r.GetByIdAsync(memberId, CancellationToken.None)).ReturnsAsync(member);
+        _mockMemberRepository.Setup(r => r.AddToEventAsync(memberId, eventId, CancellationToken.None)).Returns(Task.CompletedTask);
 
 
         await _memberService.AddToEvent(memberId, eventId);
 
-        _mockMemberRepository.Verify(r => r.AddToEventAsync(memberId, eventId), Times.Once);
+        _mockMemberRepository.Verify(r => r.AddToEventAsync(memberId, eventId, CancellationToken.None), Times.Once);
 
     }
 
@@ -112,7 +112,7 @@ public class MemberServiceTests
         var eventId = 1;
         var memberId = 2;
 
-        _mockEventRepository.Setup(r => r.GetByIdAsync(eventId)).ReturnsAsync((Event)null);
+        _mockEventRepository.Setup(r => r.GetByIdAsync(eventId, CancellationToken.None)).ReturnsAsync((Event)null);
 
         await Assert.ThrowsAsync<NotFoundException>(() => _memberService.AddToEvent(memberId, eventId));
     }
@@ -124,8 +124,8 @@ public class MemberServiceTests
         var mockEvent = new Event { Id = eventId };
         var members = new List<Member>() { new() { Id = memberId } };
 
-        _mockEventRepository.Setup(r => r.GetByIdAsync(eventId)).ReturnsAsync(mockEvent);
-        _mockMemberRepository.Setup(r => r.GetAllByEventIdAsync(eventId)).ReturnsAsync(members);
+        _mockEventRepository.Setup(r => r.GetByIdAsync(eventId, CancellationToken.None)).ReturnsAsync(mockEvent);
+        _mockMemberRepository.Setup(r => r.GetAllByEventIdAsync(eventId, CancellationToken.None)).ReturnsAsync(members);
 
         await Assert.ThrowsAsync<BadRequestException>(() => _memberService.AddToEvent(memberId, eventId));
     }
@@ -139,9 +139,9 @@ public class MemberServiceTests
         var mockEvent = new Event { Id = eventId };
         var members = new List<Member>();
 
-        _mockEventRepository.Setup(r => r.GetByIdAsync(eventId)).ReturnsAsync(mockEvent);
-        _mockMemberRepository.Setup(r => r.GetAllByEventIdAsync(eventId)).ReturnsAsync(members);
-        _mockMemberRepository.Setup(r => r.GetByIdAsync(memberId)).ReturnsAsync((Member)null);
+        _mockEventRepository.Setup(r => r.GetByIdAsync(eventId, CancellationToken.None)).ReturnsAsync(mockEvent);
+        _mockMemberRepository.Setup(r => r.GetAllByEventIdAsync(eventId, CancellationToken.None)).ReturnsAsync(members);
+        _mockMemberRepository.Setup(r => r.GetByIdAsync(memberId, CancellationToken.None)).ReturnsAsync((Member)null);
 
 
         await Assert.ThrowsAsync<NotFoundException>(() => _memberService.AddToEvent(memberId, eventId));
@@ -154,20 +154,20 @@ public class MemberServiceTests
         var @event = new Event { Id = eventId };
         var members = new List<Member> { new Member { Id = memberId } };
 
-        _mockEventRepository.Setup(r => r.GetByIdAsync(eventId)).ReturnsAsync(@event);
-        _mockMemberRepository.Setup(r => r.GetAllByEventIdAsync(eventId)).ReturnsAsync(members);
-        _mockMemberRepository.Setup(r => r.DeleteFromEventAsync(memberId, eventId)).Returns(Task.CompletedTask);
+        _mockEventRepository.Setup(r => r.GetByIdAsync(eventId, CancellationToken.None)).ReturnsAsync(@event);
+        _mockMemberRepository.Setup(r => r.GetAllByEventIdAsync(eventId, CancellationToken.None)).ReturnsAsync(members);
+        _mockMemberRepository.Setup(r => r.DeleteFromEventAsync(memberId, eventId, CancellationToken.None)).Returns(Task.CompletedTask);
 
         await _memberService.DeleteMemberFromEvent(memberId, eventId);
 
-        _mockMemberRepository.Verify(r => r.DeleteFromEventAsync(memberId, eventId), Times.Once);
+        _mockMemberRepository.Verify(r => r.DeleteFromEventAsync(memberId, eventId, CancellationToken.None), Times.Once);
     }
 
     [Fact]
     public async Task DeleteMemberFromEvent_ThrowsNotFoundException_WhenEventNotFound()
     {
         int memberId = 1, eventId = 2;
-        _mockEventRepository.Setup(r => r.GetByIdAsync(eventId)).ReturnsAsync((Event)null);
+        _mockEventRepository.Setup(r => r.GetByIdAsync(eventId, CancellationToken.None)).ReturnsAsync((Event)null);
 
         await Assert.ThrowsAsync<NotFoundException>(() => _memberService.DeleteMemberFromEvent(memberId, eventId));
     }
@@ -179,8 +179,8 @@ public class MemberServiceTests
         var @event = new Event { Id = eventId };
         var members = new List<Member> { new Member { Id = 99 } };
 
-        _mockEventRepository.Setup(r => r.GetByIdAsync(eventId)).ReturnsAsync(@event);
-        _mockMemberRepository.Setup(r => r.GetAllByEventIdAsync(eventId)).ReturnsAsync(members);
+        _mockEventRepository.Setup(r => r.GetByIdAsync(eventId, CancellationToken.None)).ReturnsAsync(@event);
+        _mockMemberRepository.Setup(r => r.GetAllByEventIdAsync(eventId, CancellationToken.None)).ReturnsAsync(members);
 
         await Assert.ThrowsAsync<BadRequestException>(() => _memberService.DeleteMemberFromEvent(memberId, eventId));
     }
@@ -191,8 +191,8 @@ public class MemberServiceTests
         int memberId = 1, eventId = 2;
         var @event = new Event { Id = eventId };
 
-        _mockEventRepository.Setup(r => r.GetByIdAsync(eventId)).ReturnsAsync(@event);
-        _mockMemberRepository.Setup(r => r.GetAllByEventIdAsync(eventId)).ReturnsAsync((List<Member>)null);
+        _mockEventRepository.Setup(r => r.GetByIdAsync(eventId, CancellationToken.None)).ReturnsAsync(@event);
+        _mockMemberRepository.Setup(r => r.GetAllByEventIdAsync(eventId, CancellationToken.None)).ReturnsAsync((List<Member>)null);
 
         await Assert.ThrowsAsync<BadRequestException>(() => _memberService.DeleteMemberFromEvent(memberId, eventId));
     }
