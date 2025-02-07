@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using EventModsen.Application.Services;
-using EventModsen.Domain.Interfaces;
+using Application.Services;
+using Domain.Interfaces;
 using Moq;
-using EventModsen.Domain.Entities;
-using EventModsen.Domain.Exceptions;
+using Domain.Entities;
+using Domain.Exceptions;
 using Microsoft.Extensions.Logging;
 using Mapster;
 
@@ -15,7 +15,7 @@ namespace Tests;
 
 public class MemberServiceTests
 {
-    private readonly MemberService _memberService;
+    private readonly MemberUseCase _memberService;
     private readonly Mock<IMemberRepository> _mockMemberRepository;
     private readonly Mock<IEventRepository> _mockEventRepository;
 
@@ -23,7 +23,7 @@ public class MemberServiceTests
     {
         _mockMemberRepository = new Mock<IMemberRepository>();
         _mockEventRepository = new Mock<IEventRepository>();
-        _memberService = new MemberService(_mockMemberRepository.Object, _mockEventRepository.Object);
+        _memberService = new MemberUseCase(_mockMemberRepository.Object, _mockEventRepository.Object);
     }
 
     [Fact]

@@ -1,6 +1,6 @@
-﻿using EventModsen.Domain.Entities;
-using EventModsen.Infrastructure.DB;
-using EventModsen.Infrastructure.DB.Repositories;
+﻿using Domain.Entities;
+using Infrastructure;
+using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
