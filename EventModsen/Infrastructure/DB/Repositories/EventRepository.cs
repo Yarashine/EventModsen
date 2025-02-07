@@ -12,34 +12,34 @@ public class EventRepository(EventDBContext _eventDBContext) : IEventRepository
 {
     private readonly DbSet<Event> _events = _eventDBContext.Set<Event>();
 
-    public async Task CreateAsync(Event @event)
+    public async Task CreateAsync(Event @event, CancellationToken cancelToken = default)
     {
-        _events.Add(@event);
-        await _eventDBContext.SaveChangesAsync();
+        await _events.AddAsync(@event, cancelToken);
+        await _eventDBContext.SaveChangesAsync(cancelToken);
     }
-    public async Task DeleteAsync(int id)
+    public async Task DeleteAsync(int id, CancellationToken cancelToken = default)
     {
-        var @event = await _events.FirstOrDefaultAsync(e => e.Id == id);
+        var @event = await _events.FirstOrDefaultAsync(e => e.Id == id, cancelToken);
         _events.Remove(@event);
-        await _eventDBContext.SaveChangesAsync();
+        await _eventDBContext.SaveChangesAsync(cancelToken);
     }
 
-    public async Task<IEnumerable<Event>> GetAllAsync()
+    public async Task<IEnumerable<Event>> GetAllAsync(CancellationToken cancelToken = default)
     {
-        return await _events.ToListAsync();
+        return await _events.ToListAsync(cancelToken);
     }
 
-    public async Task<Event> GetByIdAsync(int id)
+    public async Task<Event> GetByIdAsync(int id, CancellationToken cancelToken = default)
     {
-        return await _events.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id);
+        return await _events.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id, cancelToken);
     }
 
-    public async Task<Event> GetByNameAsync(string name)
+    public async Task<Event> GetByNameAsync(string name, CancellationToken cancelToken = default)
     {
-        return await _events.AsNoTracking().FirstOrDefaultAsync(e => e.Name == name);
+        return await _events.AsNoTracking().FirstOrDefaultAsync(e => e.Name == name, cancelToken);
     }
 
-    public async Task<IEnumerable<Event>> GetFilteredAsync(int pageNumber, int pageSize, DateTime? date = null, string location = null, string category = null)
+    public async Task<IEnumerable<Event>> GetFilteredAsync(int pageNumber, int pageSize, CancellationToken cancelToken = default, DateTime? date = null, string location = null, string category = null)
     {
         IQueryable<Event> query = _events.AsQueryable();
         if (date.HasValue)
@@ -50,12 +50,12 @@ public class EventRepository(EventDBContext _eventDBContext) : IEventRepository
             query = query.Where(e => e.Category == category);
         query = query.Skip((pageNumber-1)*pageSize).Take(pageSize);
 
-        return await query.ToListAsync();
+        return await query.ToListAsync(cancelToken);
     }
 
-    public async Task UpdateAsync(Event entity)
+    public async Task UpdateAsync(Event entity, CancellationToken cancelToken = default)
     {
         _eventDBContext.Entry(entity).State = EntityState.Modified;
-        await _eventDBContext.SaveChangesAsync();
+        await _eventDBContext.SaveChangesAsync(cancelToken);
     }
 }

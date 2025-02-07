@@ -9,19 +9,19 @@ namespace EventModsen.Application.Services;
 
 public class NotificationService(INotificationRepository _notificationRepository , IMemberRepository _memberRepository) : INotificationService
 {
-    public async Task AddNotification(string message, int memberId)
+    public async Task AddNotification(string message, int memberId, CancellationToken cancelToken = default)
     {
         var notification = new Notification() { Message = message, MemberId = memberId };
-        await _notificationRepository.AddNotificationAsync(notification);
+        await _notificationRepository.AddNotificationAsync(notification, cancelToken);
     }
 
-    public async Task<IEnumerable<NotificationDto>> GetAllMembersUnreadNotifications(int memberId)
+    public async Task<IEnumerable<NotificationDto>> GetAllMembersUnreadNotifications(int memberId, CancellationToken cancelToken = default)
     {
-        var member = await _memberRepository.GetByIdAsync(memberId) ?? throw new NotFoundException("Member");
-        var notifications = await _notificationRepository.GetUnreadNotificationsAsync(memberId);
+        var member = await _memberRepository.GetByIdAsync(memberId, cancelToken) ?? throw new NotFoundException("Member");
+        var notifications = await _notificationRepository.GetUnreadNotificationsAsync(memberId, cancelToken);
         foreach (var notification in notifications)
         {
-            await _notificationRepository.MarkAsReadAsync(notification.Id);
+            await _notificationRepository.MarkAsReadAsync(notification.Id, cancelToken);
         }
         return notifications.Adapt<IEnumerable<NotificationDto>>();        
     }

@@ -13,7 +13,7 @@ public class JwtService(IOptions<JwtSettings> options) : IJwtService
 {
     private readonly JwtSettings _jwtSettings = options.Value;
 
-    public int? GetUserIdFromToken(string token)
+    public int? GetUserIdFromToken(string token, CancellationToken cancelToken = default)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
 
@@ -29,7 +29,7 @@ public class JwtService(IOptions<JwtSettings> options) : IJwtService
         }
         return null;
     }
-    private string GenerateToken(int userId, string role, double duration, int age)
+    private string GenerateToken(int userId, string role, double duration, int age, CancellationToken cancelToken = default)
     {
         var claims = new List<Claim>()
         {
@@ -57,13 +57,13 @@ public class JwtService(IOptions<JwtSettings> options) : IJwtService
         return jwtToken; 
 
     }
-    public string GenerateAccessToken(int userId, string role, int age)
+    public string GenerateAccessToken(int userId, string role, int age, CancellationToken cancelToken = default)
     {
-        return GenerateToken(userId, role, Convert.ToDouble(_jwtSettings.AccessTokenLifetime), age);
+        return GenerateToken(userId, role, Convert.ToDouble(_jwtSettings.AccessTokenLifetime), age, cancelToken);
     }
-    public string GenerateRefreshToken(int userId, string role, int age)
+    public string GenerateRefreshToken(int userId, string role, int age, CancellationToken cancelToken = default)
     {
 
-        return GenerateToken(userId, role, Convert.ToDouble(_jwtSettings.RefreshTokenLifetime), age);
+        return GenerateToken(userId, role, Convert.ToDouble(_jwtSettings.RefreshTokenLifetime), age, cancelToken);
     }
 }

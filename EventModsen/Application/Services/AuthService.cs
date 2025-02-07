@@ -14,9 +14,9 @@ using EventModsen.Domain.Exceptions;
 
 public class AuthService(IMemberRepository _memberRepository, IJwtService _jwtService)  : IAuthService
 {
-    public async Task<AuthResponseDto> Register(RegisterDto member)
+    public async Task<AuthResponseDto> Register(RegisterDto member, CancellationToken cancelToken = default)
     {
-        var checkEmailMember = await _memberRepository.GetByEmailAsync(member.Email);
+        var checkEmailMember = await _memberRepository.GetByEmailAsync(member.Email, cancelToken);
         if (checkEmailMember is not null)
             throw new BadRequestException("User with this email already exist");
 
@@ -28,14 +28,14 @@ public class AuthService(IMemberRepository _memberRepository, IJwtService _jwtSe
         entity.PasswordSalt = passwordSalt;
 
 
-        await _memberRepository.AddAsync(entity);
+        await _memberRepository.AddAsync(entity, cancelToken);
 
         var age = CalculateAge(member.DateOfBirth);
 
-        var accessToken = _jwtService.GenerateAccessToken(entity.Id, "User", age);
-        var refreshToken = _jwtService.GenerateRefreshToken(entity.Id, "User", age);
+        var accessToken = _jwtService.GenerateAccessToken(entity.Id, "User", age, cancelToken);
+        var refreshToken = _jwtService.GenerateRefreshToken(entity.Id, "User", age, cancelToken);
 
-        await _memberRepository.UpdateRefreshAsync(entity.Id, refreshToken);
+        await _memberRepository.UpdateRefreshAsync(entity.Id, refreshToken, cancelToken);
 
         return new AuthResponseDto
         {
@@ -43,19 +43,19 @@ public class AuthService(IMemberRepository _memberRepository, IJwtService _jwtSe
             RefreshToken = refreshToken
         };
     }
-    public async Task<AuthResponseDto> Login(LoginDto credentials)
+    public async Task<AuthResponseDto> Login(LoginDto credentials, CancellationToken cancelToken = default)
     {
-        var member = await _memberRepository.GetByEmailAsync(credentials.Email) ?? throw new NotFoundException("Member");
+        var member = await _memberRepository.GetByEmailAsync(credentials.Email, cancelToken) ?? throw new NotFoundException("Member");
 
         if(!CheckPassword(credentials.Password, member.PasswordHash, member.PasswordSalt))
             throw new BadRequestException("Invalid credentials");
 
         var age = CalculateAge(member.DateOfBirth);
 
-        var accessToken = _jwtService.GenerateAccessToken(member.Id, member.Role.ToString(), age);
-        var refreshToken = _jwtService.GenerateRefreshToken(member.Id, member.Role.ToString(), age);
+        var accessToken = _jwtService.GenerateAccessToken(member.Id, member.Role.ToString(), age, cancelToken);
+        var refreshToken = _jwtService.GenerateRefreshToken(member.Id, member.Role.ToString(), age, cancelToken);
 
-        await _memberRepository.UpdateRefreshAsync(member.Id, refreshToken);
+        await _memberRepository.UpdateRefreshAsync(member.Id, refreshToken, cancelToken);
 
         return new AuthResponseDto
         {
@@ -65,21 +65,21 @@ public class AuthService(IMemberRepository _memberRepository, IJwtService _jwtSe
 
     }
 
-    public async Task<AuthResponseDto> GetNewAccessToken(string oldRefreshToken)
+    public async Task<AuthResponseDto> GetNewAccessToken(string oldRefreshToken, CancellationToken cancelToken = default)
     {
-        var id = _jwtService.GetUserIdFromToken(oldRefreshToken) ?? throw new BadRequestException("Invalid refresh token");
+        var id = _jwtService.GetUserIdFromToken(oldRefreshToken, cancelToken) ?? throw new BadRequestException("Invalid refresh token");
 
-        var member = await _memberRepository.GetByIdAsync(id) ?? throw new NotFoundException("Member");
+        var member = await _memberRepository.GetByIdAsync(id, cancelToken) ?? throw new NotFoundException("Member");
 
         if (member.RefreshToken != oldRefreshToken)
             throw new BadRequestException("Invalid refresh token");
 
         var age = CalculateAge(member.DateOfBirth);
 
-        var accessToken = _jwtService.GenerateAccessToken(id, "User", age);
-        var refreshToken = _jwtService.GenerateRefreshToken(id, "User", age);
+        var accessToken = _jwtService.GenerateAccessToken(id, "User", age, cancelToken);
+        var refreshToken = _jwtService.GenerateRefreshToken(id, "User", age, cancelToken);
 
-        await _memberRepository.UpdateRefreshAsync(id, refreshToken);
+        await _memberRepository.UpdateRefreshAsync(id, refreshToken, cancelToken);
 
         return new AuthResponseDto
         {
@@ -88,17 +88,17 @@ public class AuthService(IMemberRepository _memberRepository, IJwtService _jwtSe
         };
     }
 
-    public async Task LogOut(int memberId)
+    public async Task LogOut(int memberId, CancellationToken cancelToken = default)
     {
-        var member = await _memberRepository.GetByIdAsync(memberId) ?? throw new NotFoundException("Member");
-        await _memberRepository.UpdateRefreshAsync(memberId, null);
+        var member = await _memberRepository.GetByIdAsync(memberId, cancelToken) ?? throw new NotFoundException("Member");
+        await _memberRepository.UpdateRefreshAsync(memberId, null, cancelToken);
     }
 
 
-    public async Task ChangeMemberRole(int memberId, Role role)
+    public async Task ChangeMemberRole(int memberId, Role role, CancellationToken cancelToken = default)
     {
-        var member = await _memberRepository.GetByIdAsync(memberId) ?? throw new NotFoundException("Member");
-        await _memberRepository.ChangeRole(memberId, role);
+        var member = await _memberRepository.GetByIdAsync(memberId, cancelToken) ?? throw new NotFoundException("Member");
+        await _memberRepository.ChangeRole(memberId, role, cancelToken);
     }
 
     private int CalculateAge(DateTime dateOfBirth)

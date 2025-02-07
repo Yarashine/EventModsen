@@ -13,10 +13,10 @@ public class NotificationController(INotificationService _notificationService) :
 {
     [Authorize]
     [HttpGet]
-    public async Task<IActionResult> GetUnreadNotifications()
+    public async Task<IActionResult> GetUnreadNotifications(CancellationToken cancelToken = default)
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-        var notifications = await _notificationService.GetAllMembersUnreadNotifications(int.Parse(userId));
+        var notifications = await _notificationService.GetAllMembersUnreadNotifications(int.Parse(userId), cancelToken);
         return Ok(notifications);
     }
 

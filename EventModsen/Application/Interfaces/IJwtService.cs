@@ -4,8 +4,8 @@ namespace EventModsen.Application.Interfaces
 {
     public interface IJwtService
     {
-        int? GetUserIdFromToken(string token);
-        public string GenerateRefreshToken(int userId, string role, int age);
-        public string GenerateAccessToken(int userId, string role, int age);
+        int? GetUserIdFromToken(string token, CancellationToken cancelToken = default);
+        public string GenerateRefreshToken(int userId, string role, int age, CancellationToken cancelToken = default);
+        public string GenerateAccessToken(int userId, string role, int age, CancellationToken cancelToken = default);
     }
 }

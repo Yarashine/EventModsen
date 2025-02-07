@@ -6,9 +6,9 @@ namespace EventModsen.Application.Interfaces;
 
 public interface IAuthService
 {
-    public Task<AuthResponseDto> Register(RegisterDto member);
-    public Task<AuthResponseDto> Login(LoginDto credentials);
-    public Task<AuthResponseDto> GetNewAccessToken(string oldRefreshToken);
-    public Task LogOut(int memberId);
-    public Task ChangeMemberRole(int memberId, Role role);
+    public Task<AuthResponseDto> Register(RegisterDto member, CancellationToken cancelToken = default);
+    public Task<AuthResponseDto> Login(LoginDto credentials, CancellationToken cancelToken = default);
+    public Task<AuthResponseDto> GetNewAccessToken(string oldRefreshToken, CancellationToken cancelToken = default);
+    public Task LogOut(int memberId, CancellationToken cancelToken = default);
+    public Task ChangeMemberRole(int memberId, Role role, CancellationToken cancelToken = default);
 }

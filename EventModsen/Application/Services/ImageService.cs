@@ -24,7 +24,7 @@ namespace EventModsen.Application.Services
         private readonly string _imagePath = options.Value.ImagePath;
         private readonly string _baseUrl = $"{httpContextAccessor.HttpContext.Request.Scheme}://{httpContextAccessor.HttpContext.Request.Host}/Images/";
 
-        public async Task<string> SaveImageAsync(IFormFile file, int eventId)
+        public async Task<string> SaveImageAsync(IFormFile file, int eventId, CancellationToken cancelToken = default)
         {
             if (file == null || file.Length == 0)
                 throw new ArgumentException("File does not exist or empty");
@@ -48,7 +48,7 @@ namespace EventModsen.Application.Services
                 throw new InvalidOperationException("The file size must not exceed 5MB.");
             }
 
-            var @event = await _eventRepository.GetByIdAsync(eventId) ?? throw new NotFoundException("Event");
+            var @event = await _eventRepository.GetByIdAsync(eventId, cancelToken) ?? throw new NotFoundException("Event");
 
             string eventFolderPath = Path.Combine(_imagePath, eventId.ToString());
             await Console.Out.WriteLineAsync(eventFolderPath);
@@ -64,7 +64,7 @@ namespace EventModsen.Application.Services
 
             var imageUrl = $"{_baseUrl}{eventId}/{fileName}";
 
-            await _imageRepository.AddImageUrlToEvent(eventId, imageUrl);
+            await _imageRepository.AddImageUrlToEvent(eventId, imageUrl, cancelToken);
 
             var cachedImagesJson = await _cache.GetStringAsync($"image-{eventId}");
             var cachedImages = new List<ImageInfoDto>();
@@ -75,7 +75,7 @@ namespace EventModsen.Application.Services
             }
             else
             {
-                var images = await _imageRepository.GetAllImageUrlsFromEvent(eventId);
+                var images = await _imageRepository.GetAllImageUrlsFromEvent(eventId, cancelToken);
                 cachedImages = images.ToList().Adapt<List<ImageInfoDto>>();
             }
 
@@ -87,9 +87,9 @@ namespace EventModsen.Application.Services
             return filePath;
         }
 
-        public async Task<IEnumerable<ImageInfoDto>> GetAllEventImages(int eventId)
+        public async Task<IEnumerable<ImageInfoDto>> GetAllEventImages(int eventId, CancellationToken cancelToken = default)
         {
-            var @event = await _eventRepository.GetByIdAsync(eventId) ?? throw new NotFoundException("Event");
+            var @event = await _eventRepository.GetByIdAsync(eventId, cancelToken) ?? throw new NotFoundException("Event");
 
             var cachedImagesJson = await _cache.GetStringAsync($"image-{eventId}");
             if(!string.IsNullOrEmpty(cachedImagesJson))
@@ -98,7 +98,7 @@ namespace EventModsen.Application.Services
                 return cachedImages;
             }
 
-            var images = await _imageRepository.GetAllImageUrlsFromEvent(eventId);
+            var images = await _imageRepository.GetAllImageUrlsFromEvent(eventId, cancelToken);
             //images.Select(i => i.Adapt<ImageInfoDto>());
             var imageDtos = images.Adapt<IEnumerable<ImageInfoDto>>();
 
@@ -108,9 +108,9 @@ namespace EventModsen.Application.Services
             return imageDtos;
         }
 
-        public async Task RemoveAllEventImages(int eventId)
+        public async Task RemoveAllEventImages(int eventId, CancellationToken cancelToken = default)
         {
-            var @event = await _eventRepository.GetByIdAsync(eventId) ?? throw new NotFoundException("Event");
+            var @event = await _eventRepository.GetByIdAsync(eventId, cancelToken) ?? throw new NotFoundException("Event");
             string eventFolderPath = Path.Combine(_imagePath, eventId.ToString());
             if(Directory.Exists(eventFolderPath))
             {
