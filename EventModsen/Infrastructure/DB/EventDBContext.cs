@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using EventModsen.Domain.Entities;
 using EventModsen.Infrastructure.DB.Configurations;
+using System.Reflection;
 
 namespace EventModsen.Infrastructure.DB;
 
@@ -20,12 +21,7 @@ public class EventDBContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-
-        modelBuilder.ApplyConfiguration(new EventConfiguration());
-        modelBuilder.ApplyConfiguration(new MemberConfiguration());
-        modelBuilder.ApplyConfiguration(new ImageInfoConfiguration());
-        modelBuilder.ApplyConfiguration(new NotificationConfiguration());
-
+        modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
 
     }
