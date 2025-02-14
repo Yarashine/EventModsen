@@ -13,6 +13,7 @@ services:
     depends_on:
       - eventmodsen.database
       - eventmodsen.cache
+    restart: always
   eventmodsen.database:
     image: postgres:latest
     container_name: eventmodsen.database
