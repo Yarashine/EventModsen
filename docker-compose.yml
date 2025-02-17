@@ -11,8 +11,10 @@ services:
       - "8080:8080"
       - "8081:8081"
     depends_on:
-      - eventmodsen.database
-      - eventmodsen.cache
+      eventmodsen.database:
+        condition: service_healthy
+      eventmodsen.cache:
+        condition: service_started
   eventmodsen.database:
     image: postgres:latest
     container_name: eventmodsen.database
@@ -24,6 +26,11 @@ services:
       - ./.containers/events-db:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   eventmodsen.cache:
     image: redis:latest
     restart: always
