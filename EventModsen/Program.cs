@@ -1,25 +1,22 @@
 using Microsoft.EntityFrameworkCore;
 using Infrastructure;
-using Domain.Interfaces;
 using Infrastructure.Repositories;
-using Application.Interfaces;
-using Application.Services;
 using Application.Configuration;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
-using Presentation.Authorization;
-using Microsoft.AspNetCore.Authentication;
+using EventModsen.Authorization;
 using Microsoft.AspNetCore.Authorization;
-using Presentation.Middlewares;
+using EventModsen.Middlewares;
 using FluentValidation.AspNetCore;
-using Presentation.Validators;
-using FluentValidation;
-using Microsoft.Extensions.Options;
-using Application.UseCases;
-using UseCases.Services;
+using EventModsen.Validators;
+using Application.UseCases.Events.Queries.GetFilteredEvents;
+using Application.UseCases.Auth.Common;
+using Application.Boundaries;
+using Application.RepositoryInterfaces;
+using Application.UseCases.Auth.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,6 +36,7 @@ builder.Services.AddStackExchangeRedisCache(options =>
     options.InstanceName = "EventModsen_";
 });
 
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetFilteredEventsQueryHandler).Assembly));
 
 
 builder.Services.AddHttpContextAccessor();
@@ -47,12 +45,8 @@ builder.Services.Configure<PaginationSettings>(builder.Configuration.GetSection(
 builder.Services.Configure<ImageSettings>(builder.Configuration.GetSection("ImageSettings"));
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 
-builder.Services.AddScoped<IEventUseCase, EventUseCase>();
-builder.Services.AddScoped<IMemberUseCase, MemberUseCase>();
-builder.Services.AddScoped<IImageUseCase, ImageUseCase>();
-builder.Services.AddScoped<IJwtUseCase, JwtUseCase>();
-builder.Services.AddScoped<IAuthUseCase, AuthUseCase>();
-builder.Services.AddScoped<INotificationUseCase, NotificationUseCase>();
+builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<IMemberRepository, MemberRepository>();

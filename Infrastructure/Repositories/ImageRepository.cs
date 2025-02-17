@@ -1,6 +1,5 @@
 ﻿namespace Infrastructure.Repositories;
-
-using Domain.Interfaces;
+using Application.RepositoryInterfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Infrastructure;

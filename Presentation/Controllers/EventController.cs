@@ -1,46 +1,56 @@
 ﻿namespace Presentation.Controllers;
-using Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Domain.Entities;
-using Application.DTOs;
 using Application.DTOs.RequestDto;
 using Microsoft.AspNetCore.Authorization;
+using MediatR;
+using Application.UseCases.Events.Commands.Create;
+using Application.UseCases.Events.Commands.Update;
+using Application.UseCases.Events.Commands.Delete;
+using Application.UseCases.Events.Queries.GetEventById;
+using Application.UseCases.Events.Queries.GetEventByName;
+using Application.UseCases.Events.Queries.GetEvents;
+using Application.UseCases.Events.Queries.GetFilteredEvents;
+using Mapster;
+using Application.DTOs.Response;
 
 [ApiController]
 [Route("api/events")]
-public class EventController(IEventUseCase _eventService)  : Controller
+public class EventController(IMediator _mediator)  : Controller
 {
+
     [HttpGet]
     public async Task<ActionResult<IEnumerable<EventDto>>> GetAllEvents(CancellationToken cancelToken = default)
     {
-        var events = await _eventService.GetEvents(cancelToken);
+        var events = await _mediator.Send(new GetAllEventsQuery(), cancelToken);
         return Ok(events);
     }
 
     [HttpGet("filter")]
     public async Task<ActionResult<IEnumerable<EventDto>>> GetFilteredEvents([FromQuery] int pageNumber, [FromQuery] DateTime? date, [FromQuery] string? location, [FromQuery] string? category, CancellationToken cancelToken = default)
     {
-        var events = await _eventService.GetFilteredEvents(pageNumber, cancelToken, date, location, category);
+        var events = await _mediator.Send(new GetFilteredEventsQuery(pageNumber, date, location , category), cancelToken);
         return Ok(events);
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<EventDto?>> GetById([FromRoute] int id, CancellationToken cancelToken = default)
+    public async Task<ActionResult<EventDto>> GetById([FromRoute] int id, CancellationToken cancelToken = default)
     {
-        return await _eventService.GetEventById(id, cancelToken);
+        var @event = await _mediator.Send(new GetEventByIdQuery(id), cancelToken);
+        return @event;
     }
 
     [HttpGet("name/{name}")]
-    public async Task<ActionResult<EventDto?>> GetByName([FromRoute] string name, CancellationToken cancelToken = default)
+    public async Task<ActionResult<EventDto>> GetByName([FromRoute] string name, CancellationToken cancelToken = default)
     {
-        return await _eventService.GetEventByName(name, cancelToken);
+        var @event = await _mediator.Send(new GetEventByNameQuery(name), cancelToken);
+        return @event;
     }
 
     [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> AddEvent([FromBody] CreateEventDto @event, CancellationToken cancelToken = default)
     {
-        await _eventService.AddEvent(@event, cancelToken);
+        await _mediator.Send(@event.Adapt<CreateEventCommand>(), cancelToken);
         return Ok();
     }
 
@@ -48,7 +58,7 @@ public class EventController(IEventUseCase _eventService)  : Controller
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteEvent([FromRoute] int id, CancellationToken cancelToken = default)
     {
-        await _eventService.DeleteEvent(id, cancelToken);
+        await _mediator.Send(new DeleteEventCommand() { Id = id}, cancelToken);
         return Ok();
     }
 
@@ -56,7 +66,7 @@ public class EventController(IEventUseCase _eventService)  : Controller
     [HttpPut]
     public async Task<IActionResult> PutEvent([FromBody] UpdateEventDto @event, CancellationToken cancelToken = default)
     {
-        await _eventService.UpdateEvent(@event, cancelToken);
+        await _mediator.Send(@event.Adapt<UpdateEventCommand>(), cancelToken);
         return Ok();
     }
 }

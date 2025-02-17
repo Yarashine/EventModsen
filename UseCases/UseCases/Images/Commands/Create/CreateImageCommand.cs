@@ -1,0 +1,11 @@
+﻿using MediatR;
+using Microsoft.AspNetCore.Http;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Application.UseCases.Images.Commands.Create;
+
+public record CreateImageCommand(int EventId, IFormFile Image) : IRequest<string>;
