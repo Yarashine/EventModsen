@@ -1,4 +1,4 @@
-﻿using Application.Boundaries;
+﻿
 using Domain.Entities;
 using Domain.Exceptions;
 using Application.RepositoryInterfaces;
@@ -17,7 +17,7 @@ public class UpdateEventCommandHandler(IEventRepository _eventRepository, IMembe
         {
             var eventWithName = await _eventRepository.GetByNameAsync(request.Name, cancelToken);
             if (eventWithName is not null)
-                throw new BadRequestException("Event with this name already exist");
+                throw new AlreadyExistsException("Event with this name already exists");
         }
 
         if (eventForCheckingName.Location != request.Location)

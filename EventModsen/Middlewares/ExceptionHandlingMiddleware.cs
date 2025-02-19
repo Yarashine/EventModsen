@@ -33,6 +33,9 @@ public class ExceptionHandlingMiddleware(RequestDelegate _next, ILogger<Exceptio
             UnauthorizedAccessException => HttpStatusCode.Unauthorized,
             NotFoundException => HttpStatusCode.NotFound,
             BadRequestException => HttpStatusCode.BadRequest,
+            AlreadyExistsException => HttpStatusCode.Conflict,
+            CapacityExceededException => HttpStatusCode.Conflict,
+            AlreadyParticipatingException => HttpStatusCode.Conflict,
             _ => HttpStatusCode.InternalServerError
         };
 

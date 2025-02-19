@@ -14,7 +14,7 @@ public class AddMemberToEventCommandHandler(IMemberRepository _memberRepository,
         var members = await _memberRepository.GetAllByEventIdAsync(request.EventId, cancellationToken);
 
         if (members is not null && members.Any(m => m.Id == request.MemberId))
-            throw new BadRequestException("User already participating in the event");
+            throw new AlreadyExistsException("User already participating in the event");
 
         var member = await _memberRepository.GetByIdAsync(request.MemberId, cancellationToken) ?? throw new NotFoundException("Member");
 

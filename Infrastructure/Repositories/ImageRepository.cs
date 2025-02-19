@@ -5,10 +5,20 @@ using System.Threading.Tasks;
 using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Domain.Entities;
+using Microsoft.AspNetCore.Http;
+using Azure.Core;
+using Domain.Exceptions;
+using System.Threading;
+using Application.Configuration;
+using Microsoft.Extensions.Options;
+using MediatR;
 
 public class ImageRepository(EventDBContext _eventDBContext) : IImageRepository
 {
+
     public DbSet<ImageInfo> imageInfos = _eventDBContext.ImageInfos;
+
+    
     public async Task AddImageUrlToEvent(int eventId, string imageUrl, CancellationToken cancelToken = default)
     {
         await imageInfos.AddAsync(new ImageInfo() { ImageUrl = imageUrl, EventId = eventId }, cancelToken);

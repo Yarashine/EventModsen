@@ -13,10 +13,10 @@ using EventModsen.Middlewares;
 using FluentValidation.AspNetCore;
 using EventModsen.Validators;
 using Application.UseCases.Events.Queries.GetFilteredEvents;
-using Application.UseCases.Auth.Common;
-using Application.Boundaries;
 using Application.RepositoryInterfaces;
-using Application.UseCases.Auth.Services;
+using Infrastructure.Services.Authentication;
+using Application.Contracts;
+using Infrastructure.Services.FileStorage;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,6 +47,7 @@ builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSet
 
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IImageService, ImageService>();
 
 builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<IMemberRepository, MemberRepository>();

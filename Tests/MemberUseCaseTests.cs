@@ -142,7 +142,7 @@ public class MemberUseCaseTests
 
         var handler = new AddMemberToEventCommandHandler(_mockMemberRepository.Object, _mockEventRepository.Object);
 
-        await Assert.ThrowsAsync<BadRequestException>(() => handler.Handle(new AddMemberToEventCommand(memberId, eventId), CancellationToken.None));
+        await Assert.ThrowsAsync<AlreadyExistsException>(() => handler.Handle(new AddMemberToEventCommand(memberId, eventId), CancellationToken.None));
     }
 
     [Fact]

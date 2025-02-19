@@ -1,10 +1,11 @@
-﻿using Application.Boundaries;
+﻿
 using Application.DTOs.Response;
 using Domain.Entities;
 using Domain.Exceptions;
 using Application.RepositoryInterfaces;
 using Mapster;
 using MediatR;
+using Application.Contracts;
 
 namespace Application.UseCases.Auth.Commands.RegisterMember;
 
@@ -15,7 +16,7 @@ public class RegisterCommandHandler(IMemberRepository _memberRepository, IJwtSer
         var member = request.Member;
         var checkEmailMember = await _memberRepository.GetByEmailAsync(member.Email, cancellationToken);
         if (checkEmailMember != null)
-            throw new BadRequestException("User with this email already exists");
+            throw new AlreadyExistsException("User with this email already exists");
 
         var entity = member.Adapt<Member>();
         _authUseCase.CreatePasswordHashAndSalt(member.Password, out var passwordHash, out var passwordSalt);

@@ -14,7 +14,7 @@ public class CreateEventCommandHandler(IEventRepository _eventRepository) : IReq
     {
         var eventByName = await _eventRepository.GetByNameAsync(request.Name, cancelToken);
         if (eventByName is not null)
-            throw new BadRequestException("Event with this name already exist");
+            throw new AlreadyExistsException("Event with this name already exists");
         var entity = request.Adapt<Event>();
         await _eventRepository.CreateAsync(entity, cancelToken);
     }

@@ -1,8 +1,8 @@
-﻿namespace Application.UseCases.Auth.Services;
+﻿namespace Infrastructure.Services.Authentication;
 
+using Application.Contracts;
 using System.Security.Cryptography;
 using System.Text;
-using Application.Boundaries;
 
 public class AuthService() : IAuthService
 {

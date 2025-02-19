@@ -1,9 +1,7 @@
-﻿using Application.Boundaries;
+﻿
 using Domain.Exceptions;
 using Application.RepositoryInterfaces;
 using MediatR;
-using Application.UseCases.Notifications.Commands.Create;
-using Domain.Entities;
 using Application.UseCases.Images.Commands.RemoveAllEventImages;
 
 namespace Application.UseCases.Events.Commands.Delete;

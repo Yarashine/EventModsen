@@ -42,7 +42,7 @@ public class AuthController(IMediator _mediator) : Controller
     [HttpPost("logout")]
     public async Task<IActionResult> LogOut(CancellationToken cancelToken = default)
     {
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new BadRequestException("User is unauthorused");
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new UnauthorizedAccessException("User is unauthorused");
         await _mediator.Send(new LogoutMemberCommand(int.Parse(userId)), cancelToken);
         return Ok("Logged out successfully.");
     }
@@ -52,7 +52,7 @@ public class AuthController(IMediator _mediator) : Controller
     [HttpPut("current/role/admin")]
     public async Task<IActionResult> ChangeMembersRoleToAdmin(CancellationToken cancelToken = default)
     {
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new BadRequestException("User is unauthorused");
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new UnauthorizedAccessException("User is unauthorused");
         await _mediator.Send(new ChangeMembersRoleCommand(int.Parse(userId), Role.Admin), cancelToken);
         return Ok();
     }

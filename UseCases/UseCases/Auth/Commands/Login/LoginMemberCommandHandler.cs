@@ -1,5 +1,4 @@
-﻿using Application.Boundaries;
-using Application.DTOs.Response;
+﻿using Application.DTOs.Response;
 using Domain.Exceptions;
 using Application.RepositoryInterfaces;
 using MediatR;
@@ -8,6 +7,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Security.Authentication;
+using Application.Contracts;
 
 namespace Application.UseCases.Auth.Commands.Login;
 
@@ -20,7 +21,7 @@ public class LoginCommandHandler(IMemberRepository _memberRepository, IJwtServic
         var member = await _memberRepository.GetByEmailAsync(credentials.Email, cancellationToken) ?? throw new NotFoundException("Member");
 
         if (!_authUseCase.CheckPassword(credentials.Password, member.PasswordHash, member.PasswordSalt))
-            throw new BadRequestException("Invalid credentials");
+            throw new UnauthorizedAccessException("Invalid username or password.");
 
         var age = _authUseCase.CalculateAge(member.DateOfBirth);
         var accessToken = _jwtUseCase.GenerateAccessToken(member.Id, member.Role.ToString(), age, cancellationToken);

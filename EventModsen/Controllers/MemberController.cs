@@ -18,7 +18,7 @@ public class MemberController(IMediator _mediator) : Controller
     [HttpPost("add-to-event/{eventId}")]
     public async Task<IActionResult> AddToEvent(int eventId, CancellationToken cancelToken = default)
     {
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new BadRequestException("User is unauthorused");
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new UnauthorizedAccessException("User is unauthorused");
         await _mediator.Send(new AddMemberToEventCommand(int.Parse(userId), eventId), cancelToken);
         return Ok();
     }
@@ -42,7 +42,7 @@ public class MemberController(IMediator _mediator) : Controller
     [HttpDelete("delete-from-event/{eventId}")]
     public async Task<IActionResult> DeleteMemberFromEvent(int eventId, CancellationToken cancelToken = default)
     {
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new BadRequestException("User is unauthorused");
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new UnauthorizedAccessException("User is unauthorused");
         await _mediator.Send(new RemoveMemberFromEventCommand(int.Parse(userId), eventId), cancelToken);
         return Ok();
     }

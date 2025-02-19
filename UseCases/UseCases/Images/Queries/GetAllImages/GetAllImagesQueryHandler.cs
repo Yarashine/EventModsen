@@ -23,7 +23,7 @@ public class GetAllImagesQueryHandler(IEventRepository _eventRepository, IImageR
         }
 
         var images = await _imageRepository.GetAllImageUrlsFromEvent(request.EventId, cancellationToken);
-        //images.Select(i => i.Adapt<ImageInfoDto>());
+
         var imageDtos = images.Adapt<IEnumerable<ImageInfoDto>>();
 
         var serializedImages = JsonSerializer.Serialize(imageDtos);

@@ -8,57 +8,26 @@ using Application.Configuration;
 using Microsoft.Extensions.Caching.Distributed;
 using Mapster;
 using Application.DTOs.Response;
+using Application.Contracts;
 
 
 namespace Application.UseCases.Images.Commands.Create;
 
 public class AddImageCommandHandler(IEventRepository _eventRepository,
-                                IOptions<ImageSettings> options,
                                 IHttpContextAccessor httpContextAccessor,
                                 IImageRepository _imageRepository,
+                                IImageService _imageService,
                                 IDistributedCache _cache) : IRequestHandler<CreateImageCommand, string>
 {
-    private readonly string _imagePath = options.Value.ImagePath;
     private readonly string _baseUrl = $"{httpContextAccessor.HttpContext.Request.Scheme}://{httpContextAccessor.HttpContext.Request.Host}/Images/";
     public async Task<string> Handle(CreateImageCommand request, CancellationToken cancellationToken = default)
     {
-        if (request.Image == null || request.Image.Length == 0)
-            throw new ArgumentException("File does not exist or empty");
-
-        var allowedImageTypes = new[] { "image/jpeg", "image/png" };
-        if (!allowedImageTypes.Contains(request.Image.ContentType))
-        {
-            throw new InvalidOperationException("The file must be an image (jpeg, png).");
-        }
-
-        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
-        var fileExtension = Path.GetExtension(request.Image.FileName)?.ToLower();
-        if (!allowedExtensions.Contains(fileExtension))
-        {
-            throw new InvalidOperationException("The file must have one of the following extensions: .jpg, .jpeg, .png.");
-        }
-
-        const long maxFileSizeInBytes = 5 * 1024 * 1024;
-        if (request.Image.Length > maxFileSizeInBytes)
-        {
-            throw new InvalidOperationException("The file size must not exceed 5MB.");
-        }
 
         var @event = await _eventRepository.GetByIdAsync(request.EventId, cancellationToken) ?? throw new NotFoundException("Event");
 
-        string eventFolderPath = Path.Combine(_imagePath, request.EventId.ToString());
-        await Console.Out.WriteLineAsync(eventFolderPath);
-        Directory.CreateDirectory(eventFolderPath);
+        var partitionImageUrl = await _imageService.SaveImage(request.Image, request.EventId, cancellationToken);
 
-        string fileName = $"{Guid.NewGuid()}{Path.GetExtension(request.Image.FileName)}";
-        string filePath = Path.Combine(eventFolderPath, fileName);
-
-        using (var stream = new FileStream(filePath, FileMode.Create))
-        {
-            await request.Image.CopyToAsync(stream);
-        }
-
-        var imageUrl = $"{_baseUrl}{request.EventId}/{fileName}";
+        var imageUrl = _baseUrl + partitionImageUrl;
 
         await _imageRepository.AddImageUrlToEvent(request.EventId, imageUrl, cancellationToken);
 
@@ -80,7 +49,7 @@ public class AddImageCommandHandler(IEventRepository _eventRepository,
 
         await _cache.SetStringAsync($"image-{request.EventId}", serializedImages);
 
-        return filePath;
+        return imageUrl;
     }
 
 }

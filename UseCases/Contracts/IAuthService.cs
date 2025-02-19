@@ -2,7 +2,7 @@
 using Application.DTOs.Response;
 using Domain.Entities;
 
-namespace Application.Boundaries;
+namespace Application.Contracts;
 
 public interface IAuthService
 {

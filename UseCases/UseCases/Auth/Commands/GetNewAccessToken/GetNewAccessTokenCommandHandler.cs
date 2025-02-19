@@ -1,8 +1,9 @@
-﻿using Application.Boundaries;
+﻿
 using Application.DTOs.Response;
 using Domain.Exceptions;
 using Application.RepositoryInterfaces;
 using MediatR;
+using Application.Contracts;
 
 namespace Application.UseCases.Auth.Commands.GetNewAccessToken;
 
@@ -10,12 +11,12 @@ public class GetNewAccessTokenCommandHandler(IMemberRepository _memberRepository
 {
     public async Task<AuthResponseDto> Handle(GetNewAccessTokenCommand request, CancellationToken cancellationToken)
     {
-        var id = _jwtUseCase.GetUserIdFromToken(request.OldRefreshToken, cancellationToken) ?? throw new BadRequestException("Invalid refresh token");
+        var id = _jwtUseCase.GetUserIdFromToken(request.OldRefreshToken, cancellationToken) ?? throw new UnauthorizedAccessException("Invalid refresh token");
 
         var member = await _memberRepository.GetByIdAsync(id, cancellationToken) ?? throw new NotFoundException("Member");
 
         if (member.RefreshToken != request.OldRefreshToken)
-            throw new BadRequestException("Invalid refresh token");
+            throw new UnauthorizedAccessException("Invalid refresh token");
 
         var age = _authUseCase.CalculateAge(member.DateOfBirth);
         var accessToken = _jwtUseCase.GenerateAccessToken(id, "User", age, cancellationToken);

@@ -16,7 +16,7 @@ public class NotificationController(IMediator _mediator) : Controller
     [HttpGet]
     public async Task<IActionResult> GetUnreadNotifications(CancellationToken cancelToken = default)
     {
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new BadRequestException("User is unauthorused"); ;
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new UnauthorizedAccessException("User is unauthorused"); ;
         var notifications = await _mediator.Send(new GetUnreadNotificationsQuery(int.Parse(userId)), cancelToken);
         return Ok(notifications);
     }

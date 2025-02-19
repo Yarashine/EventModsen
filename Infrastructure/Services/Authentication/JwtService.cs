@@ -1,7 +1,7 @@
-﻿namespace Application.UseCases.Auth.Common;
+﻿namespace Infrastructure.Services.Authentication;
 
-using Application.Boundaries;
 using Application.Configuration;
+using Application.Contracts;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;

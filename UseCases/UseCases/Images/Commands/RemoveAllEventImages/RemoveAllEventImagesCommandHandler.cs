@@ -1,4 +1,5 @@
 ﻿using Application.Configuration;
+using Application.Contracts;
 using Application.RepositoryInterfaces;
 using Domain.Exceptions;
 using MediatR;
@@ -14,23 +15,16 @@ namespace Application.UseCases.Images.Commands.RemoveAllEventImages;
 
 public class RemoveAllEventImagesHandler(
     IEventRepository _eventRepository,
-    IOptions<ImageSettings> options,
+    IImageService _imageService,
     IDistributedCache _cache)
     : IRequestHandler<RemoveAllEventImagesCommand>
 {
-    private readonly string _imagePath = options.Value.ImagePath;
-
     public async Task Handle(RemoveAllEventImagesCommand request, CancellationToken cancellationToken)
     {
         var @event = await _eventRepository.GetByIdAsync(request.EventId, cancellationToken)
                      ?? throw new NotFoundException("Event");
 
-        string eventFolderPath = Path.Combine(_imagePath, request.EventId.ToString());
-
-        if (Directory.Exists(eventFolderPath))
-        {
-            Directory.Delete(eventFolderPath, true);
-        }
+        _imageService.RemoveAllImageFilesFromEvent(request.EventId);        
 
         await _cache.RemoveAsync($"image-{request.EventId}", cancellationToken);
     }
