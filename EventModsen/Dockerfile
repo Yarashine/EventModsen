@@ -2,6 +2,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 USER app
 WORKDIR /app
 
+
 EXPOSE 8080
 EXPOSE 8081
 
@@ -15,6 +16,7 @@ RUN dotnet restore "./EventModsen/EventModsen.csproj"
 COPY . .
 WORKDIR "/src/EventModsen"
 RUN dotnet build "./EventModsen.csproj" -c $BUILD_CONFIGURATION -o /app/build
+
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release

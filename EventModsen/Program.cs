@@ -17,6 +17,7 @@ using Application.RepositoryInterfaces;
 using Infrastructure.Services.Authentication;
 using Application.Contracts;
 using Infrastructure.Services.FileStorage;
+using System.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -138,6 +139,38 @@ app.UseStaticFiles(new StaticFileOptions
     FileProvider = new PhysicalFileProvider(imagePath),
     RequestPath = "/Images"
 });
+
+
+// ”станавливаем права доступа (chmod 777 Ч полный доступ)
+try
+{
+    var processInfo = new ProcessStartInfo
+    {
+        FileName = "/bin/bash",
+        Arguments = $"-c \"chmod -R 777 {imagePath}\"",
+        RedirectStandardOutput = true,
+        RedirectStandardError = true,
+        UseShellExecute = false,
+        CreateNoWindow = true
+    };
+
+    using (var process = new Process { StartInfo = processInfo })
+    {
+        process.Start();
+        string output = process.StandardOutput.ReadToEnd();
+        string error = process.StandardError.ReadToEnd();
+        process.WaitForExit();
+
+        if (!string.IsNullOrEmpty(error))
+        {
+            Console.WriteLine($"ќшибка изменени€ прав доступа: {error}");
+        }
+    }
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"ќшибка при установке прав доступа: {ex.Message}");
+}
 
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
